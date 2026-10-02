@@ -20,11 +20,11 @@
     <nav class="bottom">
       <a href="#home" data-page="home" class="active">
         <i>home</i>
-        <span>Home</span>
+        <span data-i18n="nav.home">Home</span>
       </a>
       <a href="#settings" data-page="settings">
         <i>settings</i>
-        <span>Settings</span>
+        <span data-i18n="nav.settings">Settings</span>
       </a>
     </nav>
 
@@ -33,14 +33,14 @@
         <nav>
           <div class="max small-text" id="avg-info"></div>
           <div class="field border small suffix no-margin">
-            <select id="avg-period" aria-label="Averaging period">
-              <option value="7d">Last 7 days</option>
-              <option value="14d">Last 14 days</option>
-              <option value="1m">Last month</option>
-              <option value="3m">Last 3 months</option>
-              <option value="6m">Last 6 months</option>
-              <option value="1y">Last year</option>
-              <option value="all">All time</option>
+            <select id="avg-period" data-i18n-aria="period.label" aria-label="Averaging period">
+              <option value="7d" data-i18n="period.7d">Last 7 days</option>
+              <option value="14d" data-i18n="period.14d">Last 14 days</option>
+              <option value="1m" data-i18n="period.1m">Last month</option>
+              <option value="3m" data-i18n="period.3m">Last 3 months</option>
+              <option value="6m" data-i18n="period.6m">Last 6 months</option>
+              <option value="1y" data-i18n="period.1y">Last year</option>
+              <option value="all" data-i18n="period.all">All time</option>
             </select>
             <i>arrow_drop_down</i>
           </div>
@@ -48,17 +48,17 @@
         <div class="space"></div>
         <div class="grid">
           <article class="s4 m4 l4 center-align">
-            <div class="small-text">Avg. systolic</div>
+            <div class="small-text" data-i18n="avg.sys">Avg. systolic</div>
             <h4 id="avg-sys">–</h4>
             <div class="small-text">mmHg</div>
           </article>
           <article class="s4 m4 l4 center-align">
-            <div class="small-text">Avg. diastolic</div>
+            <div class="small-text" data-i18n="avg.dia">Avg. diastolic</div>
             <h4 id="avg-dia">–</h4>
             <div class="small-text">mmHg</div>
           </article>
           <article class="s4 m4 l4 center-align">
-            <div class="small-text">MAP</div>
+            <div class="small-text" data-i18n="avg.map">MAP</div>
             <h4 id="avg-map">–</h4>
             <div class="small-text">mmHg</div>
           </article>
@@ -69,11 +69,11 @@
         <nav class="group connected">
           <button id="view-list" class="left-round active" data-view="list">
             <i>list</i>
-            <span>List</span>
+            <span data-i18n="view.list">List</span>
           </button>
           <button id="view-calendar" class="right-round" data-view="calendar">
             <i>calendar_month</i>
-            <span>Calendar</span>
+            <span data-i18n="view.calendar">Calendar</span>
           </button>
         </nav>
 
@@ -83,23 +83,23 @@
           <table class="stripes">
             <thead>
               <tr>
-                <th>Date</th>
+                <th data-i18n="col.date">Date</th>
                 <th class="right-align">SYS</th>
                 <th class="right-align">DIA</th>
-                <th class="right-align">Pulse</th>
+                <th class="right-align" data-i18n="col.pulse">Pulse</th>
               </tr>
             </thead>
             <tbody id="measurements"></tbody>
           </table>
-          <p id="empty" class="center-align padding">No measurements yet. Tap <b>+</b> to add one.</p>
+          <p id="empty" class="center-align padding" data-i18n-html="list.empty">No measurements yet. Tap <b>+</b> to add one.</p>
         </article>
 
         <div id="calendar-view" hidden>
           <article>
             <nav>
-              <button id="cal-prev" class="circle transparent" aria-label="Previous month"><i>chevron_left</i></button>
+              <button id="cal-prev" class="circle transparent" data-i18n-aria="cal.prev" aria-label="Previous month"><i>chevron_left</i></button>
               <h6 id="cal-title" class="max center-align small"></h6>
-              <button id="cal-next" class="circle transparent" aria-label="Next month"><i>chevron_right</i></button>
+              <button id="cal-next" class="circle transparent" data-i18n-aria="cal.next" aria-label="Next month"><i>chevron_right</i></button>
             </nav>
             <div id="calendar" class="calendar"></div>
           </article>
@@ -108,81 +108,96 @@
             <table class="stripes">
               <thead>
                 <tr>
-                  <th>Time</th>
+                  <th data-i18n="col.time">Time</th>
                   <th class="right-align">SYS</th>
                   <th class="right-align">DIA</th>
-                  <th class="right-align">Pulse</th>
+                  <th class="right-align" data-i18n="col.pulse">Pulse</th>
                 </tr>
               </thead>
               <tbody id="day-measurements"></tbody>
             </table>
-            <p id="day-empty" class="center-align padding">No measurements on this day.</p>
+            <p id="day-empty" class="center-align padding" data-i18n="cal.dayEmpty">No measurements on this day.</p>
           </article>
         </div>
         <div class="large-space"></div>
       </div>
 
       <div id="settings" class="page">
-        <h5>Display</h5>
+        <h5 data-i18n="settings.display">Display</h5>
+        <article>
+          <nav>
+            <i>language</i>
+            <h6 class="max small" data-i18n="settings.language">Language</h6>
+            <div class="field border small suffix no-margin">
+              <select id="language" data-i18n-aria="settings.language" aria-label="Language">
+                <option value="auto" data-i18n="settings.languageAuto">Automatic (system)</option>
+                <option value="en">English</option>
+                <option value="de">Deutsch</option>
+              </select>
+              <i>arrow_drop_down</i>
+            </div>
+          </nav>
+          <p data-i18n="settings.languageDesc">Language of the app.</p>
+        </article>
         <article>
           <nav>
             <i>visibility</i>
-            <h6 class="max small">Colorblind mode</h6>
+            <h6 class="max small" data-i18n="settings.colorblind">Colorblind mode</h6>
             <label class="switch">
               <input id="colorblind" type="checkbox" />
               <span></span>
             </label>
           </nav>
-          <p>Highlight elevated readings with a high-contrast marker instead of red text.</p>
+          <p data-i18n="settings.colorblindDesc">Highlight elevated readings with a high-contrast marker instead of red text.</p>
         </article>
         <article>
           <nav>
             <i>info</i>
-            <h6 class="max small">Measurement instructions</h6>
+            <h6 class="max small" data-i18n="settings.guide">Measurement instructions</h6>
             <label class="switch">
               <input id="show-guide" type="checkbox" />
               <span></span>
             </label>
           </nav>
-          <p>Show how to measure correctly each time you add a new measurement.</p>
+          <p data-i18n="settings.guideDesc">Show how to measure correctly each time you add a new measurement.</p>
         </article>
 
         <div class="space"></div>
 
-        <h5>Data</h5>
+        <h5 data-i18n="settings.data">Data</h5>
         <article>
           <nav>
             <i>upload</i>
-            <h6 class="max small">Export</h6>
+            <h6 class="max small" data-i18n="settings.export">Export</h6>
           </nav>
-          <p>Download all measurements as a JSON file.</p>
+          <p data-i18n="settings.exportDesc">Download all measurements as a JSON file.</p>
           <nav class="right-align">
-            <button id="export-btn" class="border">Export</button>
+            <button id="export-btn" class="border" data-i18n="settings.export">Export</button>
           </nav>
         </article>
         <article>
           <nav>
             <i>download</i>
-            <h6 class="max small">Import</h6>
+            <h6 class="max small" data-i18n="settings.import">Import</h6>
           </nav>
-          <p>Load measurements from a JSON file. Entries with the same id are replaced.</p>
+          <p data-i18n="settings.importDesc">Load measurements from a JSON file. Entries with the same id are replaced.</p>
           <nav class="right-align">
-            <button id="import-btn" class="border">Import</button>
+            <button id="import-btn" class="border" data-i18n="settings.import">Import</button>
           </nav>
           <input id="import-file" type="file" accept="application/json,.json" hidden />
         </article>
         <article>
           <nav>
             <i>smartphone</i>
-            <h6 class="max small">Import from MediLog</h6>
+            <h6 class="max small" data-i18n="settings.medilog">Import from MediLog</h6>
           </nav>
-          <p>
+          <p data-i18n-html="settings.medilogDesc">
             Load blood pressure readings from a MediLog (Android) backup. Select the
             <b>MediLog-Data.csv</b> file; other data types are ignored and re-importing the same file creates no
             duplicates.
           </p>
           <nav class="right-align">
-            <button id="medilog-btn" class="border">Import CSV</button>
+            <button id="medilog-btn" class="border" data-i18n="settings.medilogBtn">Import CSV</button>
           </nav>
           <input id="medilog-file" type="file" accept="text/csv,.csv" hidden />
         </article>
@@ -190,84 +205,84 @@
       </div>
     </main>
 
-    <button id="add-btn" class="fab square round extra" aria-label="Add measurement">
+    <button id="add-btn" class="fab square round extra" data-i18n-aria="add.label" aria-label="Add measurement">
       <i>add</i>
     </button>
 
     <dialog id="guide-dialog">
-      <h5>Before you measure</h5>
+      <h5 data-i18n="guide.title">Before you measure</h5>
       <div class="guide-body">
-        <h6 class="small">Preparation</h6>
+        <h6 class="small" data-i18n="guide.preparation">Preparation</h6>
         <ul class="list">
           <li>
             <i>smoke_free</i>
-            <div class="max">No smoking, coffee, food or exercise for 30 minutes beforehand</div>
+            <div class="max" data-i18n="guide.noSmoking">No smoking, coffee, food or exercise for 30 minutes beforehand</div>
           </li>
           <li>
             <i>volume_off</i>
-            <div class="max">Quiet surroundings</div>
+            <div class="max" data-i18n="guide.quiet">Quiet surroundings</div>
           </li>
           <li>
             <i>thermostat</i>
-            <div class="max">Comfortable room temperature</div>
+            <div class="max" data-i18n="guide.temperature">Comfortable room temperature</div>
           </li>
           <li>
             <i>timer</i>
-            <div class="max">Rest for 5 minutes before measuring</div>
+            <div class="max" data-i18n="guide.rest">Rest for 5 minutes before measuring</div>
           </li>
           <li>
             <i>voice_over_off</i>
-            <div class="max">Don't talk during or between measurements</div>
+            <div class="max" data-i18n="guide.noTalking">Don't talk during or between measurements</div>
           </li>
         </ul>
-        <h6 class="small">Position</h6>
+        <h6 class="small" data-i18n="guide.position">Position</h6>
         <ul class="list">
           <li>
             <i>chair</i>
-            <div class="max">Sit with your back supported and both feet flat on the floor</div>
+            <div class="max" data-i18n="guide.sit">Sit with your back supported and both feet flat on the floor</div>
           </li>
           <li>
             <i>front_hand</i>
-            <div class="max">Bare arm resting on a table, the middle of the upper arm at heart level</div>
+            <div class="max" data-i18n="guide.arm">Bare arm resting on a table, the middle of the upper arm at heart level</div>
           </li>
           <li>
             <i>straighten</i>
-            <div class="max">Use a cuff that fits your arm circumference (small, normal or large)</div>
+            <div class="max" data-i18n="guide.cuff">Use a cuff that fits your arm circumference (small, normal or large)</div>
           </li>
           <li>
             <i>verified</i>
-            <div class="max">Use a validated electronic upper-arm monitor</div>
+            <div class="max" data-i18n="guide.device">Use a validated electronic upper-arm monitor</div>
           </li>
         </ul>
       </div>
       <label class="checkbox">
         <input id="guide-hide" type="checkbox" />
-        <span>Don't show this again</span>
+        <span data-i18n="guide.hide">Don't show this again</span>
       </label>
       <nav class="right-align no-space">
-        <button type="button" id="guide-cancel" class="transparent link">Cancel</button>
-        <button type="button" id="guide-continue" class="transparent link">Continue</button>
+        <button type="button" id="guide-cancel" class="transparent link" data-i18n="action.cancel">Cancel</button>
+        <button type="button" id="guide-continue" class="transparent link" data-i18n="action.continue">Continue</button>
       </nav>
     </dialog>
 
     <dialog id="add-dialog">
-      <h5>New measurement</h5>
+      <h5 data-i18n="form.title">New measurement</h5>
       <form id="add-form" method="dialog">
         <div class="field label border">
           <input id="sys" name="systolic" type="number" inputmode="numeric" min="40" max="300" required placeholder=" " />
-          <label for="sys">Systolic (mmHg)</label>
+          <label for="sys" data-i18n="form.sys">Systolic (mmHg)</label>
         </div>
         <div class="field label border">
           <input id="dia" name="diastolic" type="number" inputmode="numeric" min="20" max="200" required placeholder=" " />
-          <label for="dia">Diastolic (mmHg)</label>
+          <label for="dia" data-i18n="form.dia">Diastolic (mmHg)</label>
         </div>
         <div class="field label border">
           <input id="pulse" name="pulse" type="number" inputmode="numeric" min="20" max="250" required placeholder=" " />
-          <label for="pulse">Pulse (bpm)</label>
+          <label for="pulse" data-i18n="form.pulse">Pulse (bpm)</label>
         </div>
         <nav class="right-align no-space">
-          <button type="button" id="cancel-btn" class="transparent link">Cancel</button>
-          <button type="submit" class="transparent link">Save</button>
+          <button type="button" id="cancel-btn" class="transparent link" data-i18n="action.cancel">Cancel</button>
+          <button type="submit" class="transparent link" data-i18n="action.save">Save</button>
         </nav>
       </form>
     </dialog>

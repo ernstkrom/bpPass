@@ -9,11 +9,12 @@ import {
   importMeasurements,
 } from './storage.js';
 import { parseMedilogCsv } from './medilog.js';
+import { t, translatePage, locale, getLanguagePreference, setLanguagePreference } from './i18n.js';
 
 registerSW({ immediate: true });
+translatePage();
 
 const $ = (sel) => document.querySelector(sel);
-const dateFormat = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' });
 
 let snackTimer;
 function toast(message, isError = false) {
@@ -89,7 +90,7 @@ periodSelect.addEventListener('change', () => {
 function renderAverages() {
   const since = PERIODS[periodSelect.value](new Date());
   const list = measurements.filter((m) => new Date(m.date).getTime() >= since);
-  $('#avg-info').textContent = `Averages of ${list.length} measurement(s)`;
+  $('#avg-info').textContent = t('avg.info', { n: list.length });
 
   if (list.length) {
     const sys = avg(list, 'systolic');
@@ -104,22 +105,32 @@ function renderAverages() {
   }
 }
 
-async function render() {
-  const list = (measurements = await listMeasurements());
-  $('#measurements').replaceChildren(...list.map((m) => measurementRow(m, dateFormat)));
-  $('#empty').hidden = list.length > 0;
+function draw() {
+  $('#measurements').replaceChildren(...measurements.map((m) => measurementRow(m, dateFormat)));
+  $('#empty').hidden = measurements.length > 0;
   renderCalendar();
-  $('#storage-info').textContent = `${list.length} measurement(s) stored in the origin private file system.`;
+  $('#storage-info').textContent = t('settings.storageInfo', { n: measurements.length });
   renderAverages();
-  return list;
+}
+
+async function render() {
+  measurements = await listMeasurements();
+  draw();
+  return measurements;
 }
 
 // --- Calendar -----------------------------------------------------------
 
-const monthFormat = new Intl.DateTimeFormat(undefined, { month: 'long', year: 'numeric' });
-const dayFormat = new Intl.DateTimeFormat(undefined, { dateStyle: 'full' });
-const timeFormat = new Intl.DateTimeFormat(undefined, { timeStyle: 'short' });
-const weekdayFormat = new Intl.DateTimeFormat(undefined, { weekday: 'narrow' });
+let dateFormat, monthFormat, dayFormat, timeFormat, weekdayFormat;
+function createFormats() {
+  const loc = locale();
+  dateFormat = new Intl.DateTimeFormat(loc, { dateStyle: 'medium', timeStyle: 'short' });
+  monthFormat = new Intl.DateTimeFormat(loc, { month: 'long', year: 'numeric' });
+  dayFormat = new Intl.DateTimeFormat(loc, { dateStyle: 'full' });
+  timeFormat = new Intl.DateTimeFormat(loc, { timeStyle: 'short' });
+  weekdayFormat = new Intl.DateTimeFormat(loc, { weekday: 'narrow' });
+}
+createFormats();
 const MAX_PER_CELL = 3;
 
 // 0 = Sunday … 6 = Saturday; Intl weekInfo uses 1 = Monday … 7 = Sunday.
@@ -171,7 +182,7 @@ function renderCalendar() {
     cell.className = 'day';
     cell.classList.toggle('today', dayKey(date) === dayKey(today));
     cell.classList.toggle('selected', dayKey(date) === dayKey(selectedDay));
-    cell.setAttribute('aria-label', `${dayFormat.format(date)}, ${entries.length} measurement(s)`);
+    cell.setAttribute('aria-label', t('cal.dayLabel', { date: dayFormat.format(date), n: entries.length }));
     cell.addEventListener('click', () => {
       selectedDay = date;
       renderCalendar();
@@ -279,20 +290,28 @@ form.addEventListener('submit', async (e) => {
   const diastolic = Number(data.get('diastolic'));
   const pulse = Number(data.get('pulse'));
   if (diastolic >= systolic) {
-    toast('Diastolic must be lower than systolic', true);
+    toast(t('toast.diaHigher'), true);
     return;
   }
   try {
     await saveMeasurement(createMeasurement({ systolic, diastolic, pulse }));
     dialog.close();
     await render();
-    toast('Measurement saved');
+    toast(t('toast.saved'));
   } catch (err) {
-    toast(`Could not save: ${err.message}`, true);
+    toast(t('toast.saveFailed', { error: err.message }), true);
   }
 });
 
 // --- Settings -----------------------------------------------------------
+
+const languageSelect = $('#language');
+languageSelect.value = getLanguagePreference();
+languageSelect.addEventListener('change', () => {
+  setLanguagePreference(languageSelect.value);
+  createFormats();
+  draw();
+});
 
 const colorblindToggle = $('#colorblind');
 function setColorblind(on) {
@@ -321,7 +340,7 @@ $('#export-btn').addEventListener('click', async () => {
   a.download = `HeartPass-${new Date().toISOString().slice(0, 10)}.json`;
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-  toast(`Exported ${list.length} measurement(s)`);
+  toast(t('toast.exported', { n: list.length }));
 });
 
 const fileInput = $('#import-file');
@@ -333,9 +352,10 @@ fileInput.addEventListener('change', async () => {
   try {
     const { imported, skipped } = await importMeasurements(JSON.parse(await file.text()));
     await render();
-    toast(`Imported ${imported} measurement(s)` + (skipped ? `, skipped ${skipped} invalid` : ''));
+    const notes = [t('toast.imported', { n: imported }), skipped && t('toast.skipped', { n: skipped })];
+    toast(notes.filter(Boolean).join(', '));
   } catch (err) {
-    toast(`Import failed: ${err.message}`, true);
+    toast(t('toast.importFailed', { error: err.message }), true);
   }
 });
 
@@ -349,19 +369,23 @@ medilogInput.addEventListener('change', async () => {
     const { measurements, ignored } = parseMedilogCsv(await file.text());
     const { imported, skipped } = await importMeasurements(measurements);
     await render();
-    const notes = [skipped && `skipped ${skipped} invalid`, ignored && `ignored ${ignored} non-blood-pressure`];
-    toast([`Imported ${imported} measurement(s)`, ...notes.filter(Boolean)].join(', '));
+    const notes = [
+      t('toast.imported', { n: imported }),
+      skipped && t('toast.skipped', { n: skipped }),
+      ignored && t('toast.ignored', { n: ignored }),
+    ];
+    toast(notes.filter(Boolean).join(', '));
   } catch (err) {
-    toast(`MediLog import failed: ${err.message}`, true);
+    toast(t('toast.medilogFailed', { error: err.message }), true);
   }
 });
 
 // --- Startup ------------------------------------------------------------
 
 if (!isSupported()) {
-  toast('This browser does not support the Origin Private File System', true);
+  toast(t('toast.unsupported'), true);
 } else {
   // Ask the browser not to evict our data under storage pressure.
   navigator.storage.persist?.();
-  render().catch((err) => toast(`Could not load data: ${err.message}`, true));
+  render().catch((err) => toast(t('toast.loadFailed', { error: err.message }), true));
 }

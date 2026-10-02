@@ -1,6 +1,8 @@
 // Measurements live in the Origin Private File System (OPFS):
 // one JSON file per measurement inside the "measurements" directory.
 
+import { t } from './i18n.js';
+
 const DIR_NAME = 'measurements';
 
 async function getDir() {
@@ -64,7 +66,7 @@ export async function listMeasurements() {
 }
 
 export async function saveMeasurement(m) {
-  if (!isValid(m)) throw new Error('Invalid measurement');
+  if (!isValid(m)) throw new Error(t('error.invalid'));
   const dir = await getDir();
   await writeFile(dir, `${m.id}.json`, JSON.stringify(m));
 }
@@ -81,7 +83,7 @@ export function createMeasurement({ systolic, diastolic, pulse, date = new Date(
 
 /** Imports an array of measurements, overwriting entries with the same id. Returns { imported, skipped }. */
 export async function importMeasurements(list) {
-  if (!Array.isArray(list)) throw new Error('Expected a JSON array of measurements');
+  if (!Array.isArray(list)) throw new Error(t('error.notArray'));
   let imported = 0;
   let skipped = 0;
   for (const raw of list) {

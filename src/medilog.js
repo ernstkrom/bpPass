@@ -4,6 +4,8 @@
 // Rows with type 2 are blood pressure: value1 = systolic, value2 = diastolic, value3 = pulse.
 // Timestamps are local time without a zone ("2026-07-20 20:46:10").
 
+import { t } from './i18n.js';
+
 const BLOOD_PRESSURE_TYPE = '2';
 
 /** Minimal RFC 4180 parser: quoted fields, escaped quotes ("") and embedded newlines. */
@@ -69,7 +71,7 @@ export function isMedilogCsv(text) {
  */
 export function parseMedilogCsv(text) {
   text = text.replace(/^﻿/, '');
-  if (!isMedilogCsv(text)) throw new Error('Not a MediLog data export (expected MediLog-Data.csv)');
+  if (!isMedilogCsv(text)) throw new Error(t('error.notMedilog'));
 
   const [header, ...rows] = parseCsv(text, detectDelimiter(text.split(/\r?\n/, 1)[0]));
   const col = Object.fromEntries(header.map((name, i) => [name.trim(), i]));
