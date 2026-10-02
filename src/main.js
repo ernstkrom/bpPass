@@ -16,6 +16,18 @@ translatePage();
 
 const $ = (sel) => document.querySelector(sel);
 
+// --- Native app feel ----------------------------------------------------
+
+// Suppress the browser's long-press / right-click menu and dragging of links and icons,
+// except in text fields where copy & paste should keep working.
+const isEditable = (el) => el instanceof Element && el.closest('input, textarea, select, [contenteditable]');
+document.addEventListener('contextmenu', (e) => {
+  if (!isEditable(e.target)) e.preventDefault();
+});
+document.addEventListener('dragstart', (e) => {
+  if (!isEditable(e.target)) e.preventDefault();
+});
+
 let snackTimer;
 function toast(message, isError = false) {
   const bar = $('#snackbar');

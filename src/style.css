@@ -1,7 +1,44 @@
+/* --- Native app feel -------------------------------------------------- */
+
+html,
+body {
+  /* No pull-to-refresh or rubber-band scrolling of the whole page. */
+  overscroll-behavior: none;
+}
+
+body {
+  /* No long-press callout (iOS), text selection or double-tap zoom on UI chrome. */
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+/* Keep text entry and selection working where the user actually types. */
+input,
+textarea,
+select,
+[contenteditable] {
+  -webkit-touch-callout: default;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+img,
+svg,
+a {
+  -webkit-user-drag: none;
+}
+
+/* No focus ring after a tap; keyboard focus stays visible. */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
 .fab {
   position: fixed;
-  right: 1.5rem;
-  bottom: 6.5rem;
+  right: calc(1.5rem + env(safe-area-inset-right));
+  bottom: calc(6.5rem + env(safe-area-inset-bottom));
   z-index: 10;
 }
 
