@@ -232,9 +232,43 @@ try {
 const dialog = $('#add-dialog');
 const form = $('#add-form');
 
-$('#add-btn').addEventListener('click', () => {
+const guideDialog = $('#guide-dialog');
+const guideHide = $('#guide-hide');
+const showGuideToggle = $('#show-guide');
+
+function setShowGuide(on) {
+  showGuideToggle.checked = on;
+  try {
+    localStorage.setItem('showGuide', on);
+  } catch {
+    // Remembering the setting is only a convenience.
+  }
+}
+try {
+  showGuideToggle.checked = localStorage.getItem('showGuide') !== 'false';
+} catch {
+  showGuideToggle.checked = true;
+}
+showGuideToggle.addEventListener('change', () => setShowGuide(showGuideToggle.checked));
+
+function openAddDialog() {
   form.reset();
   dialog.showModal();
+}
+
+$('#add-btn').addEventListener('click', () => {
+  if (showGuideToggle.checked) {
+    guideHide.checked = false;
+    guideDialog.showModal();
+  } else {
+    openAddDialog();
+  }
+});
+$('#guide-cancel').addEventListener('click', () => guideDialog.close());
+$('#guide-continue').addEventListener('click', () => {
+  if (guideHide.checked) setShowGuide(false);
+  guideDialog.close();
+  openAddDialog();
 });
 $('#cancel-btn').addEventListener('click', () => dialog.close());
 

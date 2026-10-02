@@ -95,6 +95,22 @@ table th {
   opacity: 0.7;
 }
 
+.guide-body {
+  max-height: 50vh;
+  overflow-y: auto;
+  /* BeerCSS rounds the scroll container, which clips the first letter. */
+  border-radius: 0;
+}
+
+#guide-dialog label.checkbox {
+  margin-top: 1rem;
+}
+
+/* BeerCSS list items don't wrap by default. */
+.guide-body .list > li {
+  white-space: normal;
+}
+
 [hidden] {
   display: none !important;
 }

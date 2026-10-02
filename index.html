@@ -135,6 +135,17 @@
           </nav>
           <p>Highlight elevated readings with a high-contrast marker instead of red text.</p>
         </article>
+        <article>
+          <nav>
+            <i>info</i>
+            <h6 class="max small">Measurement instructions</h6>
+            <label class="switch">
+              <input id="show-guide" type="checkbox" />
+              <span></span>
+            </label>
+          </nav>
+          <p>Show how to measure correctly each time you add a new measurement.</p>
+        </article>
 
         <div class="space"></div>
 
@@ -182,6 +193,62 @@
     <button id="add-btn" class="fab square round extra" aria-label="Add measurement">
       <i>add</i>
     </button>
+
+    <dialog id="guide-dialog">
+      <h5>Before you measure</h5>
+      <div class="guide-body">
+        <h6 class="small">Preparation</h6>
+        <ul class="list">
+          <li>
+            <i>smoke_free</i>
+            <div class="max">No smoking, coffee, food or exercise for 30 minutes beforehand</div>
+          </li>
+          <li>
+            <i>volume_off</i>
+            <div class="max">Quiet surroundings</div>
+          </li>
+          <li>
+            <i>thermostat</i>
+            <div class="max">Comfortable room temperature</div>
+          </li>
+          <li>
+            <i>timer</i>
+            <div class="max">Rest for 5 minutes before measuring</div>
+          </li>
+          <li>
+            <i>voice_over_off</i>
+            <div class="max">Don't talk during or between measurements</div>
+          </li>
+        </ul>
+        <h6 class="small">Position</h6>
+        <ul class="list">
+          <li>
+            <i>chair</i>
+            <div class="max">Sit with your back supported and both feet flat on the floor</div>
+          </li>
+          <li>
+            <i>front_hand</i>
+            <div class="max">Bare arm resting on a table, the middle of the upper arm at heart level</div>
+          </li>
+          <li>
+            <i>straighten</i>
+            <div class="max">Use a cuff that fits your arm circumference (small, normal or large)</div>
+          </li>
+          <li>
+            <i>verified</i>
+            <div class="max">Use a validated electronic upper-arm monitor</div>
+          </li>
+        </ul>
+      </div>
+      <label class="checkbox">
+        <input id="guide-hide" type="checkbox" />
+        <span>Don't show this again</span>
+      </label>
+      <nav class="right-align no-space">
+        <button type="button" id="guide-cancel" class="transparent link">Cancel</button>
+        <button type="button" id="guide-continue" class="transparent link">Continue</button>
+      </nav>
+    </dialog>
 
     <dialog id="add-dialog">
       <h5>New measurement</h5>
