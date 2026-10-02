@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#6750a4" />
+    <meta name="description" content="Track your blood pressure measurements offline." />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <title>bpPass</title>
+  </head>
+  <body class="light">
+    <header class="fixed primary">
+      <nav>
+        <i>favorite</i>
+        <h6 class="max">bpPass</h6>
+      </nav>
+    </header>
+
+    <nav class="bottom">
+      <a href="#home" data-page="home" class="active">
+        <i>home</i>
+        <span>Home</span>
+      </a>
+      <a href="#settings" data-page="settings">
+        <i>settings</i>
+        <span>Settings</span>
+      </a>
+    </nav>
+
+    <main class="responsive">
+      <div id="home" class="page active">
+        <div class="grid">
+          <article class="s4 m4 l4 center-align">
+            <div class="small-text">Avg. systolic</div>
+            <h4 id="avg-sys">–</h4>
+            <div class="small-text">mmHg</div>
+          </article>
+          <article class="s4 m4 l4 center-align">
+            <div class="small-text">Avg. diastolic</div>
+            <h4 id="avg-dia">–</h4>
+            <div class="small-text">mmHg</div>
+          </article>
+          <article class="s4 m4 l4 center-align">
+            <div class="small-text">MAP</div>
+            <h4 id="avg-map">–</h4>
+            <div class="small-text">mmHg</div>
+          </article>
+        </div>
+
+        <div class="space"></div>
+
+        <article class="no-padding">
+          <table class="stripes">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th class="right-align">SYS</th>
+                <th class="right-align">DIA</th>
+                <th class="right-align">Pulse</th>
+              </tr>
+            </thead>
+            <tbody id="measurements"></tbody>
+          </table>
+          <p id="empty" class="center-align padding">No measurements yet. Tap <b>+</b> to add one.</p>
+        </article>
+        <div class="large-space"></div>
+      </div>
+
+      <div id="settings" class="page">
+        <h5>Data</h5>
+        <article>
+          <nav>
+            <i>upload</i>
+            <h6 class="max small">Export</h6>
+          </nav>
+          <p>Download all measurements as a JSON file.</p>
+          <nav class="right-align">
+            <button id="export-btn" class="border">Export</button>
+          </nav>
+        </article>
+        <article>
+          <nav>
+            <i>download</i>
+            <h6 class="max small">Import</h6>
+          </nav>
+          <p>Load measurements from a JSON file. Entries with the same id are replaced.</p>
+          <nav class="right-align">
+            <button id="import-btn" class="border">Import</button>
+          </nav>
+          <input id="import-file" type="file" accept="application/json,.json" hidden />
+        </article>
+        <article>
+          <nav>
+            <i>smartphone</i>
+            <h6 class="max small">Import from MediLog</h6>
+          </nav>
+          <p>
+            Load blood pressure readings from a MediLog (Android) backup. Select the
+            <b>MediLog-Data.csv</b> file; other data types are ignored and re-importing the same file creates no
+            duplicates.
+          </p>
+          <nav class="right-align">
+            <button id="medilog-btn" class="border">Import CSV</button>
+          </nav>
+          <input id="medilog-file" type="file" accept="text/csv,.csv" hidden />
+        </article>
+        <p id="storage-info" class="small-text"></p>
+      </div>
+    </main>
+
+    <button id="add-btn" class="fab square round extra" aria-label="Add measurement">
+      <i>add</i>
+    </button>
+
+    <dialog id="add-dialog">
+      <h5>New measurement</h5>
+      <form id="add-form" method="dialog">
+        <div class="field label border">
+          <input id="sys" name="systolic" type="number" inputmode="numeric" min="40" max="300" required placeholder=" " />
+          <label for="sys">Systolic (mmHg)</label>
+        </div>
+        <div class="field label border">
+          <input id="dia" name="diastolic" type="number" inputmode="numeric" min="20" max="200" required placeholder=" " />
+          <label for="dia">Diastolic (mmHg)</label>
+        </div>
+        <div class="field label border">
+          <input id="pulse" name="pulse" type="number" inputmode="numeric" min="20" max="250" required placeholder=" " />
+          <label for="pulse">Pulse (bpm)</label>
+        </div>
+        <nav class="right-align no-space">
+          <button type="button" id="cancel-btn" class="transparent link">Cancel</button>
+          <button type="submit" class="transparent link">Save</button>
+        </nav>
+      </form>
+    </dialog>
+
+    <div id="snackbar" class="snackbar"></div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

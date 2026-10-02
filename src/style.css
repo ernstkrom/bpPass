@@ -1,0 +1,24 @@
+.fab {
+  position: fixed;
+  right: 1.5rem;
+  bottom: 6.5rem;
+  z-index: 10;
+}
+
+.snackbar.error {
+  background-color: var(--error);
+  color: var(--on-error);
+}
+
+#home article h4 {
+  margin: 0.25rem 0;
+}
+
+table td,
+table th {
+  white-space: nowrap;
+}
+
+[hidden] {
+  display: none !important;
+}
