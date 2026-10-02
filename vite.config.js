@@ -2,6 +2,8 @@ import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
+  // Served from https://<user>.github.io/bpPass/ on GitHub Pages.
+  base: '/bpPass/',
   plugins: [
     VitePWA({
       registerType: 'autoUpdate',
