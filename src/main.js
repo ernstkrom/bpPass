@@ -41,28 +41,55 @@ showPage(location.hash.slice(1));
 
 const avg = (list, key) => list.reduce((sum, m) => sum + m[key], 0) / list.length;
 
-async function render() {
-  const list = await listMeasurements();
-  const tbody = $('#measurements');
-  tbody.replaceChildren(
-    ...list.map((m) => {
-      const tr = document.createElement('tr');
-      for (const [value, cls] of [
-        [dateFormat.format(new Date(m.date)), ''],
-        [m.systolic, 'right-align'],
-        [m.diastolic, 'right-align'],
-        [m.pulse, 'right-align'],
-      ]) {
-        const td = document.createElement('td');
-        td.textContent = value;
-        if (cls) td.className = cls;
-        tr.append(td);
-      }
-      return tr;
-    }),
-  );
-  $('#empty').hidden = list.length > 0;
-  $('#storage-info').textContent = `${list.length} measurement(s) stored in the origin private file system.`;
+let measurements = [];
+
+function measurementRow(m, format) {
+  const tr = document.createElement('tr');
+  for (const [value, cls] of [
+    [format.format(new Date(m.date)), ''],
+    [m.systolic, 'right-align'],
+    [m.diastolic, 'right-align'],
+    [m.pulse, 'right-align'],
+  ]) {
+    const td = document.createElement('td');
+    td.textContent = value;
+    if (cls) td.className = cls;
+    tr.append(td);
+  }
+  return tr;
+}
+
+// Start of each averaging period, relative to now.
+const PERIODS = {
+  '7d': (d) => d.setDate(d.getDate() - 7),
+  '14d': (d) => d.setDate(d.getDate() - 14),
+  '1m': (d) => d.setMonth(d.getMonth() - 1),
+  '3m': (d) => d.setMonth(d.getMonth() - 3),
+  '6m': (d) => d.setMonth(d.getMonth() - 6),
+  '1y': (d) => d.setFullYear(d.getFullYear() - 1),
+  all: () => -Infinity,
+};
+
+const periodSelect = $('#avg-period');
+try {
+  const saved = localStorage.getItem('avgPeriod');
+  if (saved in PERIODS) periodSelect.value = saved;
+} catch {
+  // Ignore unavailable storage.
+}
+periodSelect.addEventListener('change', () => {
+  try {
+    localStorage.setItem('avgPeriod', periodSelect.value);
+  } catch {
+    // Remembering the period is only a convenience.
+  }
+  renderAverages();
+});
+
+function renderAverages() {
+  const since = PERIODS[periodSelect.value](new Date());
+  const list = measurements.filter((m) => new Date(m.date).getTime() >= since);
+  $('#avg-info').textContent = `Averages of ${list.length} measurement(s)`;
 
   if (list.length) {
     const sys = avg(list, 'systolic');
@@ -75,7 +102,131 @@ async function render() {
   } else {
     $('#avg-sys').textContent = $('#avg-dia').textContent = $('#avg-map').textContent = '–';
   }
+}
+
+async function render() {
+  const list = (measurements = await listMeasurements());
+  $('#measurements').replaceChildren(...list.map((m) => measurementRow(m, dateFormat)));
+  $('#empty').hidden = list.length > 0;
+  renderCalendar();
+  $('#storage-info').textContent = `${list.length} measurement(s) stored in the origin private file system.`;
+  renderAverages();
   return list;
+}
+
+// --- Calendar -----------------------------------------------------------
+
+const monthFormat = new Intl.DateTimeFormat(undefined, { month: 'long', year: 'numeric' });
+const dayFormat = new Intl.DateTimeFormat(undefined, { dateStyle: 'full' });
+const timeFormat = new Intl.DateTimeFormat(undefined, { timeStyle: 'short' });
+const weekdayFormat = new Intl.DateTimeFormat(undefined, { weekday: 'narrow' });
+const MAX_PER_CELL = 3;
+
+// 0 = Sunday … 6 = Saturday; Intl weekInfo uses 1 = Monday … 7 = Sunday.
+const firstWeekday = (() => {
+  try {
+    const locale = new Intl.Locale(navigator.language);
+    const firstDay = (locale.getWeekInfo?.() ?? locale.weekInfo)?.firstDay;
+    return firstDay ? firstDay % 7 : 1;
+  } catch {
+    return 1;
+  }
+})();
+
+const dayKey = (d) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+const today = new Date();
+let calMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+let selectedDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+// Readings at or above stage 1 hypertension (ACC/AHA: ≥130 / ≥80 mmHg).
+const isHigh = (m) => m.systolic >= 130 || m.diastolic >= 80;
+
+function renderCalendar() {
+  const byDay = new Map();
+  // Oldest first within a day.
+  for (const m of [...measurements].reverse()) {
+    const key = dayKey(new Date(m.date));
+    if (!byDay.has(key)) byDay.set(key, []);
+    byDay.get(key).push(m);
+  }
+
+  $('#cal-title').textContent = monthFormat.format(calMonth);
+  const cells = [];
+  for (let i = 0; i < 7; i++) {
+    // 2023-01-01 was a Sunday.
+    const div = document.createElement('div');
+    div.className = 'weekday';
+    div.textContent = weekdayFormat.format(new Date(2023, 0, 1 + ((firstWeekday + i) % 7)));
+    cells.push(div);
+  }
+
+  const offset = (calMonth.getDay() - firstWeekday + 7) % 7;
+  const daysInMonth = new Date(calMonth.getFullYear(), calMonth.getMonth() + 1, 0).getDate();
+  for (let i = 0; i < offset; i++) cells.push(document.createElement('div'));
+  for (let day = 1; day <= daysInMonth; day++) {
+    const date = new Date(calMonth.getFullYear(), calMonth.getMonth(), day);
+    const entries = byDay.get(dayKey(date)) ?? [];
+    const cell = document.createElement('button');
+    cell.type = 'button';
+    cell.className = 'day';
+    cell.classList.toggle('today', dayKey(date) === dayKey(today));
+    cell.classList.toggle('selected', dayKey(date) === dayKey(selectedDay));
+    cell.setAttribute('aria-label', `${dayFormat.format(date)}, ${entries.length} measurement(s)`);
+    cell.addEventListener('click', () => {
+      selectedDay = date;
+      renderCalendar();
+    });
+
+    const num = document.createElement('span');
+    num.className = 'num';
+    num.textContent = day;
+    cell.append(num);
+    for (const m of entries.slice(0, MAX_PER_CELL)) {
+      const chip = document.createElement('span');
+      chip.className = 'reading' + (isHigh(m) ? ' high' : '');
+      chip.textContent = `${m.systolic}/${m.diastolic}`;
+      cell.append(chip);
+    }
+    if (entries.length > MAX_PER_CELL) {
+      const more = document.createElement('span');
+      more.className = 'more';
+      more.textContent = `+${entries.length - MAX_PER_CELL}`;
+      cell.append(more);
+    }
+    cells.push(cell);
+  }
+  $('#calendar').replaceChildren(...cells);
+
+  const dayEntries = byDay.get(dayKey(selectedDay)) ?? [];
+  $('#day-title').textContent = dayFormat.format(selectedDay);
+  $('#day-measurements').replaceChildren(...dayEntries.map((m) => measurementRow(m, timeFormat)));
+  $('#day-empty').hidden = dayEntries.length > 0;
+}
+
+function shiftMonth(delta) {
+  calMonth = new Date(calMonth.getFullYear(), calMonth.getMonth() + delta, 1);
+  renderCalendar();
+}
+$('#cal-prev').addEventListener('click', () => shiftMonth(-1));
+$('#cal-next').addEventListener('click', () => shiftMonth(1));
+
+function showView(view) {
+  $('#list-view').hidden = view !== 'list';
+  $('#calendar-view').hidden = view !== 'calendar';
+  for (const btn of document.querySelectorAll('[data-view]')) btn.classList.toggle('active', btn.dataset.view === view);
+  try {
+    localStorage.setItem('view', view);
+  } catch {
+    // Remembering the view is only a convenience.
+  }
+}
+for (const btn of document.querySelectorAll('[data-view]')) {
+  btn.addEventListener('click', () => showView(btn.dataset.view));
+}
+try {
+  if (localStorage.getItem('view') === 'calendar') showView('calendar');
+} catch {
+  // Ignore unavailable storage.
 }
 
 const dialog = $('#add-dialog');
@@ -109,12 +260,31 @@ form.addEventListener('submit', async (e) => {
 
 // --- Settings -----------------------------------------------------------
 
+const colorblindToggle = $('#colorblind');
+function setColorblind(on) {
+  document.body.classList.toggle('colorblind', on);
+  colorblindToggle.checked = on;
+}
+try {
+  setColorblind(localStorage.getItem('colorblind') === 'true');
+} catch {
+  // Ignore unavailable storage.
+}
+colorblindToggle.addEventListener('change', () => {
+  setColorblind(colorblindToggle.checked);
+  try {
+    localStorage.setItem('colorblind', colorblindToggle.checked);
+  } catch {
+    // Remembering the setting is only a convenience.
+  }
+});
+
 $('#export-btn').addEventListener('click', async () => {
   const list = await listMeasurements();
   const blob = new Blob([JSON.stringify(list, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `bppass-${new Date().toISOString().slice(0, 10)}.json`;
+  a.download = `HeartPass-${new Date().toISOString().slice(0, 10)}.json`;
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   toast(`Exported ${list.length} measurement(s)`);

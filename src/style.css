@@ -19,6 +19,82 @@ table th {
   white-space: nowrap;
 }
 
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.25rem;
+}
+
+.calendar .weekday {
+  text-align: center;
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+.calendar .day {
+  all: unset;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.125rem;
+  min-height: 4.5rem;
+  padding: 0.25rem 0.125rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.calendar .day:hover {
+  background-color: var(--surface-container-high);
+}
+
+.calendar .day:focus-visible {
+  outline: 2px solid var(--primary);
+}
+
+.calendar .day.selected {
+  background-color: var(--secondary-container);
+  color: var(--on-secondary-container);
+}
+
+.calendar .num {
+  font-size: 0.8rem;
+  line-height: 1.5rem;
+  width: 1.5rem;
+  text-align: center;
+  border-radius: 50%;
+}
+
+.calendar .today .num {
+  background-color: var(--primary);
+  color: var(--on-primary);
+}
+
+.calendar .reading,
+.calendar .more {
+  font-size: 0.65rem;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.calendar .reading.high {
+  color: var(--error);
+  font-weight: bold;
+}
+
+/* Colorblind mode: don't rely on red vs. black; use a filled marker that differs in shape and luminance. */
+.colorblind .calendar .reading.high {
+  color: #000;
+  background-color: #e69f00; /* Okabe–Ito orange */
+  border-radius: 0.25rem;
+  padding: 0 0.125rem;
+}
+
+.calendar .more {
+  opacity: 0.7;
+}
+
 [hidden] {
   display: none !important;
 }

@@ -7,13 +7,13 @@
     <meta name="description" content="Track your blood pressure measurements offline." />
     <link rel="icon" href="/icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <title>bpPass</title>
+    <title>HeartPass</title>
   </head>
   <body class="light">
     <header class="fixed primary">
       <nav>
         <i>favorite</i>
-        <h6 class="max">bpPass</h6>
+        <h6 class="max">HeartPass</h6>
       </nav>
     </header>
 
@@ -30,6 +30,22 @@
 
     <main class="responsive">
       <div id="home" class="page active">
+        <nav>
+          <div class="max small-text" id="avg-info"></div>
+          <div class="field border small suffix no-margin">
+            <select id="avg-period" aria-label="Averaging period">
+              <option value="7d">Last 7 days</option>
+              <option value="14d">Last 14 days</option>
+              <option value="1m">Last month</option>
+              <option value="3m">Last 3 months</option>
+              <option value="6m">Last 6 months</option>
+              <option value="1y">Last year</option>
+              <option value="all">All time</option>
+            </select>
+            <i>arrow_drop_down</i>
+          </div>
+        </nav>
+        <div class="space"></div>
         <div class="grid">
           <article class="s4 m4 l4 center-align">
             <div class="small-text">Avg. systolic</div>
@@ -50,7 +66,20 @@
 
         <div class="space"></div>
 
-        <article class="no-padding">
+        <nav class="group connected">
+          <button id="view-list" class="left-round active" data-view="list">
+            <i>list</i>
+            <span>List</span>
+          </button>
+          <button id="view-calendar" class="right-round" data-view="calendar">
+            <i>calendar_month</i>
+            <span>Calendar</span>
+          </button>
+        </nav>
+
+        <div class="space"></div>
+
+        <article id="list-view" class="no-padding">
           <table class="stripes">
             <thead>
               <tr>
@@ -64,10 +93,51 @@
           </table>
           <p id="empty" class="center-align padding">No measurements yet. Tap <b>+</b> to add one.</p>
         </article>
+
+        <div id="calendar-view" hidden>
+          <article>
+            <nav>
+              <button id="cal-prev" class="circle transparent" aria-label="Previous month"><i>chevron_left</i></button>
+              <h6 id="cal-title" class="max center-align small"></h6>
+              <button id="cal-next" class="circle transparent" aria-label="Next month"><i>chevron_right</i></button>
+            </nav>
+            <div id="calendar" class="calendar"></div>
+          </article>
+          <article class="no-padding">
+            <h6 id="day-title" class="small padding"></h6>
+            <table class="stripes">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th class="right-align">SYS</th>
+                  <th class="right-align">DIA</th>
+                  <th class="right-align">Pulse</th>
+                </tr>
+              </thead>
+              <tbody id="day-measurements"></tbody>
+            </table>
+            <p id="day-empty" class="center-align padding">No measurements on this day.</p>
+          </article>
+        </div>
         <div class="large-space"></div>
       </div>
 
       <div id="settings" class="page">
+        <h5>Display</h5>
+        <article>
+          <nav>
+            <i>visibility</i>
+            <h6 class="max small">Colorblind mode</h6>
+            <label class="switch">
+              <input id="colorblind" type="checkbox" />
+              <span></span>
+            </label>
+          </nav>
+          <p>Highlight elevated readings with a high-contrast marker instead of red text.</p>
+        </article>
+
+        <div class="space"></div>
+
         <h5>Data</h5>
         <article>
           <nav>

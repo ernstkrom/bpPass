@@ -2,15 +2,15 @@ import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
-  // Served from https://<user>.github.io/bpPass/ on GitHub Pages.
-  base: '/bpPass/',
+  // Served from https://<user>.github.io/HeartPass/ on GitHub Pages.
+  base: '/HeartPass/',
   plugins: [
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['icon.svg', 'apple-touch-icon.png'],
       manifest: {
         name: 'Blood Pressure Pass',
-        short_name: 'bpPass',
+        short_name: 'HeartPass',
         description: 'Track your blood pressure measurements offline.',
         theme_color: '#6750a4',
         background_color: '#ffffff',
