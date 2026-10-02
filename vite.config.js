@@ -1,9 +1,12 @@
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
+// On GitHub Pages the app is served from https://<user>.github.io/<repo>/, so derive the base
+// from the repository name in CI. Locally it is served from the root.
+const repo = process.env.GITHUB_REPOSITORY?.split('/')[1];
+
 export default defineConfig({
-  // Served from https://<user>.github.io/HeartPass/ on GitHub Pages.
-  base: '/HeartPass/',
+  base: repo ? `/${repo}/` : '/',
   plugins: [
     VitePWA({
       registerType: 'autoUpdate',
