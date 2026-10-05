@@ -35,20 +35,6 @@ a {
   outline: none;
 }
 
-/* BeerCSS makes header.fixed sticky inside the body grid. iOS standalone apps only use a truly
-   fixed top bar as the status bar backdrop; otherwise they add a blurred scroll edge behind the
-   status bar. So pin the header (it already pads itself by the top safe area) and offset main. */
-body > header.fixed {
-  position: fixed;
-  inset: 0 0 auto 0;
-  block-size: 4rem;
-  min-block-size: 0;
-}
-
-body > main {
-  padding-block-start: calc(var(--_padding) + 4rem + var(--top, 0px));
-}
-
 .fab {
   position: fixed;
   right: calc(1.5rem + env(safe-area-inset-right));
