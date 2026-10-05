@@ -55,12 +55,24 @@
         stroke-linejoin="round" />
     </svg>
   </div>
-  <!-- <header class="fixed primary">
-      <nav>
-        <i>favorite</i>
-        <h6 class="max">HeartPass</h6>
-      </nav>
-    </header> -->
+  <header id="app-header" class="fixed">
+    <svg class="header-wave" viewBox="0 0 400 80" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 48h150l14-24 22 50 18-62 16 36h180" />
+    </svg>
+    <nav>
+      <div class="header-logo" aria-hidden="true">
+        <svg viewBox="0 0 512 512">
+          <path d="M256 400s-136-84-136-180a76 76 0 0 1 136-46 76 76 0 0 1 136 46c0 96-136 180-136 180z" fill="#fff" />
+          <path d="M150 250h60l24-48 40 96 24-48h64" fill="none" stroke="#6750a4" stroke-width="22"
+            stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </div>
+      <div class="max">
+        <h6 class="header-title">HeartPass</h6>
+        <div id="header-subtitle" class="header-subtitle" data-i18n="nav.home">Home</div>
+      </div>
+    </nav>
+  </header>
 
   <nav class="bottom">
     <a href="#home" data-page="home" class="active">
@@ -106,7 +118,7 @@
       </div>
       <!-- <div class="space"></div> -->
       <nav>
-        <div class="max small-text" id="avg-info"></div>
+        <div class="max" id="avg-info"></div>
         <div class="field border small suffix no-margin">
           <select id="avg-period" data-i18n-aria="period.label" aria-label="Averaging period">
             <option value="7d" data-i18n="period.7d">Last 7 days</option>
@@ -183,7 +195,6 @@
     </div>
 
     <div id="settings" class="page">
-      <div class="space"></div>
       <h5 data-i18n="settings.display">Display</h5>
       <article>
         <nav>

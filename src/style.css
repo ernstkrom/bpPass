@@ -196,3 +196,125 @@ tr.editable:focus-visible {
 button.link.error-text {
   color: var(--error) !important;
 }
+
+/* --- App header ---------------------------------------------------------- */
+
+/* The URL hash matches the page's id, so the browser scrolls to it and hides the header. A margin
+   taller than the viewport makes that scroll target the top of the document instead. */
+main > .page {
+  scroll-margin-top: 100vh;
+}
+
+#app-header {
+  position: sticky;
+  overflow: hidden;
+  min-block-size: 0;
+  padding: calc(env(safe-area-inset-top) + 1rem) 1.25rem 1.25rem;
+  margin-block-end: 1rem;
+  color: #fff;
+  background: linear-gradient(135deg, #7f67be 0%, #6750a4 45%, #4f378b 100%);
+  border-radius: 0 0 1.75rem 1.75rem;
+  box-shadow: 0 0 0 transparent;
+  transition:
+    padding 0.25s ease,
+    border-radius 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+/* Soft glow in the corner for depth. */
+#app-header::before {
+  content: '';
+  position: absolute;
+  inset: -40% -10% auto auto;
+  inline-size: 14rem;
+  block-size: 14rem;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(255 255 255 / 0.18), transparent 70%);
+  pointer-events: none;
+}
+
+#app-header > nav {
+  position: relative;
+  gap: 0.875rem;
+}
+
+.header-wave {
+  position: absolute;
+  inset: auto 0 0.25rem 35%;
+  inline-size: 65%;
+  block-size: 4.5rem;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.header-wave path {
+  fill: none;
+  stroke: rgb(255 255 255 / 0.22);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.header-logo {
+  display: grid;
+  place-items: center;
+  inline-size: 3rem;
+  block-size: 3rem;
+  flex: none;
+  border-radius: 1rem;
+  background: rgb(255 255 255 / 0.16);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.25);
+  transition:
+    inline-size 0.25s ease,
+    block-size 0.25s ease,
+    border-radius 0.25s ease;
+}
+
+.header-logo svg {
+  inline-size: 75%;
+  block-size: 75%;
+}
+
+.header-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  transition: font-size 0.25s ease;
+}
+
+.header-subtitle {
+  font-size: 0.8125rem;
+  line-height: 1.2;
+  opacity: 0.8;
+  transition: opacity 0.25s ease;
+}
+
+#app-header.scrolled {
+  padding-block: calc(env(safe-area-inset-top) + 0.5rem) 0.5rem;
+  border-radius: 0 0 1rem 1rem;
+  box-shadow: 0 4px 16px rgb(79 55 139 / 0.35);
+}
+
+#app-header.scrolled .header-logo {
+  inline-size: 2.25rem;
+  block-size: 2.25rem;
+  border-radius: 0.75rem;
+}
+
+#app-header.scrolled .header-title {
+  font-size: 1.125rem;
+}
+
+#app-header.scrolled .header-wave {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #app-header,
+  #app-header * {
+    transition: none;
+  }
+}

@@ -46,7 +46,21 @@ function showPage(name) {
   document.querySelectorAll('main > .page').forEach((p) => p.classList.toggle('active', p.id === name));
   document.querySelectorAll('nav.bottom a').forEach((a) => a.classList.toggle('active', a.dataset.page === name));
   $('#add-btn').hidden = name !== 'home';
+  const subtitle = $('#header-subtitle');
+  subtitle.dataset.i18n = `nav.${name}`;
+  subtitle.textContent = t(subtitle.dataset.i18n);
+  window.scrollTo(0, 0);
 }
+
+// Compact, elevated header once the content scrolls underneath it (Material 3 top app bar).
+// Collapsing shortens the page, so expand only back at the very top to avoid toggling back and forth.
+const header = $('#app-header');
+const onScroll = () => {
+  if (window.scrollY > 40) header.classList.add('scrolled');
+  else if (window.scrollY <= 0) header.classList.remove('scrolled');
+};
+window.addEventListener('scroll', onScroll, { passive: true });
+onScroll();
 
 window.addEventListener('hashchange', () => showPage(location.hash.slice(1)));
 showPage(location.hash.slice(1));
