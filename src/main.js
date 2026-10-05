@@ -466,12 +466,17 @@ medilogInput.addEventListener('change', async () => {
 
 // --- Startup ------------------------------------------------------------
 
+const SPLASH_MIN_MS = 1000;
+
 function hideSplash() {
   const splash = $('#splash');
-  splash.addEventListener('transitionend', () => splash.remove(), { once: true });
-  splash.classList.add('hide');
-  // Not shown outside the installed app, so there is no transition to wait for.
-  if (getComputedStyle(splash).display === 'none') splash.remove();
+  // Not shown outside the installed app, so there is nothing to wait for.
+  if (getComputedStyle(splash).display === 'none') return splash.remove();
+  // Keep it up for at least SPLASH_MIN_MS since the page started loading, so it doesn't just flash.
+  setTimeout(() => {
+    splash.addEventListener('transitionend', () => splash.remove(), { once: true });
+    splash.classList.add('hide');
+  }, Math.max(0, SPLASH_MIN_MS - performance.now()));
 }
 
 if (!isSupported()) {
