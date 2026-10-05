@@ -12,7 +12,7 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['icon.svg', 'apple-touch-icon.png'],
       manifest: {
-        name: 'Blood Pressure Pass',
+        name: 'HeartPass',
         short_name: 'HeartPass',
         description: 'Track your blood pressure measurements offline.',
         theme_color: '#6750a4',
