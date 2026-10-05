@@ -13,8 +13,41 @@
     <link rel="icon" href="/icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <title>HeartPass</title>
+    <style>
+      /* Launch screen, inlined so it paints before the CSS and JS bundles load. Only shown when
+         running as an installed app; main.js fades it out once the first render is done. */
+      #splash {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+        background: #6750a4;
+        transition: opacity 0.3s ease;
+      }
+      #splash svg {
+        width: 8rem;
+        height: 8rem;
+      }
+      #splash.hide {
+        opacity: 0;
+        pointer-events: none;
+      }
+      @media (display-mode: standalone), (display-mode: fullscreen) {
+        #splash {
+          display: flex;
+        }
+      }
+    </style>
   </head>
   <body class="light">
+    <div id="splash" aria-hidden="true">
+      <svg viewBox="0 0 512 512">
+        <path d="M256 400s-136-84-136-180a76 76 0 0 1 136-46 76 76 0 0 1 136 46c0 96-136 180-136 180z" fill="#fff"/>
+        <path d="M150 250h60l24-48 40 96 24-48h64" fill="none" stroke="#6750a4" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
     <header class="fixed primary">
       <nav>
         <i>favorite</i>

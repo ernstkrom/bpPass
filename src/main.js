@@ -466,10 +466,21 @@ medilogInput.addEventListener('change', async () => {
 
 // --- Startup ------------------------------------------------------------
 
+function hideSplash() {
+  const splash = $('#splash');
+  splash.addEventListener('transitionend', () => splash.remove(), { once: true });
+  splash.classList.add('hide');
+  // Not shown outside the installed app, so there is no transition to wait for.
+  if (getComputedStyle(splash).display === 'none') splash.remove();
+}
+
 if (!isSupported()) {
+  hideSplash();
   toast(t('toast.unsupported'), true);
 } else {
   // Ask the browser not to evict our data under storage pressure.
   navigator.storage.persist?.();
-  render().catch((err) => toast(t('toast.loadFailed', { error: err.message }), true));
+  render()
+    .catch((err) => toast(t('toast.loadFailed', { error: err.message }), true))
+    .finally(hideSplash);
 }

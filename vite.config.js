@@ -16,7 +16,7 @@ export default defineConfig({
         short_name: 'HeartPass',
         description: 'Track your blood pressure measurements offline.',
         theme_color: '#6750a4',
-        background_color: '#ffffff',
+        background_color: '#6750a4',
         display: 'standalone',
         start_url: '.',
         icons: [
