@@ -71,6 +71,11 @@ export async function saveMeasurement(m) {
   await writeFile(dir, `${m.id}.json`, JSON.stringify(m));
 }
 
+export async function deleteMeasurement(id) {
+  const dir = await getDir();
+  await dir.removeEntry(`${id}.json`);
+}
+
 export function createMeasurement({ systolic, diastolic, pulse, date = new Date() }) {
   return {
     id: crypto.randomUUID(),

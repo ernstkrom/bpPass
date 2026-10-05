@@ -5,6 +5,7 @@ import {
   isSupported,
   listMeasurements,
   saveMeasurement,
+  deleteMeasurement,
   createMeasurement,
   importMeasurements,
 } from './storage.js';
@@ -58,6 +59,16 @@ let measurements = [];
 
 function measurementRow(m, format) {
   const tr = document.createElement('tr');
+  tr.className = 'editable';
+  tr.tabIndex = 0;
+  tr.setAttribute('aria-label', t('edit.label', { date: dateFormat.format(new Date(m.date)) }));
+  tr.addEventListener('click', () => openEditDialog(m));
+  tr.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      openEditDialog(m);
+    }
+  });
   for (const [value, cls] of [
     [format.format(new Date(m.date)), ''],
     [m.systolic, 'right-align'],
@@ -274,8 +285,40 @@ try {
 }
 showGuideToggle.addEventListener('change', () => setShowGuide(showGuideToggle.checked));
 
+const dateInput = $('#date');
+
+// Measurement being edited, or null when adding a new one.
+let editing = null;
+
+// Value for a datetime-local input, which expects local time without a zone.
+function toLocalInput(date) {
+  const d = new Date(date);
+  d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+  return d.toISOString().slice(0, 16);
+}
+
 function openAddDialog() {
+  editing = null;
   form.reset();
+  $('#form-title').textContent = t('form.title');
+  dateInput.parentElement.hidden = true;
+  dateInput.disabled = true;
+  $('#delete-btn').hidden = true;
+  dialog.showModal();
+}
+
+function openEditDialog(m) {
+  editing = m;
+  form.reset();
+  $('#form-title').textContent = t('form.editTitle');
+  form.elements.systolic.value = m.systolic;
+  form.elements.diastolic.value = m.diastolic;
+  form.elements.pulse.value = m.pulse;
+  dateInput.disabled = false;
+  dateInput.parentElement.hidden = false;
+  dateInput.value = toLocalInput(m.date);
+  dateInput.max = toLocalInput(new Date());
+  $('#delete-btn').hidden = false;
   dialog.showModal();
 }
 
@@ -295,6 +338,28 @@ $('#guide-continue').addEventListener('click', () => {
 });
 $('#cancel-btn').addEventListener('click', () => dialog.close());
 
+const deleteDialog = $('#delete-dialog');
+$('#delete-btn').addEventListener('click', () => {
+  $('#delete-info').textContent = t('delete.info', {
+    date: dateFormat.format(new Date(editing.date)),
+    value: `${editing.systolic}/${editing.diastolic}`,
+  });
+  deleteDialog.showModal();
+});
+$('#delete-cancel').addEventListener('click', () => deleteDialog.close());
+$('#delete-confirm').addEventListener('click', async () => {
+  try {
+    await deleteMeasurement(editing.id);
+    deleteDialog.close();
+    dialog.close();
+    await render();
+    toast(t('toast.deleted'));
+  } catch (err) {
+    deleteDialog.close();
+    toast(t('toast.deleteFailed', { error: err.message }), true);
+  }
+});
+
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
   const data = new FormData(form);
@@ -306,7 +371,14 @@ form.addEventListener('submit', async (e) => {
     return;
   }
   try {
-    await saveMeasurement(createMeasurement({ systolic, diastolic, pulse }));
+    if (editing) {
+      // Keep the original timestamp (with seconds) unless the date was actually changed.
+      const date =
+        dateInput.value === toLocalInput(editing.date) ? editing.date : new Date(dateInput.value).toISOString();
+      await saveMeasurement({ ...editing, date, systolic, diastolic, pulse });
+    } else {
+      await saveMeasurement(createMeasurement({ systolic, diastolic, pulse }));
+    }
     dialog.close();
     await render();
     toast(t('toast.saved'));

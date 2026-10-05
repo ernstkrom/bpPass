@@ -271,8 +271,12 @@
     </dialog>
 
     <dialog id="add-dialog">
-      <h5 data-i18n="form.title">New measurement</h5>
+      <h5 id="form-title" data-i18n="form.title">New measurement</h5>
       <form id="add-form" method="dialog">
+        <div class="field label border" hidden>
+          <input id="date" name="date" type="datetime-local" required disabled placeholder=" " />
+          <label for="date" data-i18n="form.date">Date and time</label>
+        </div>
         <div class="field label border">
           <input id="sys" name="systolic" type="number" inputmode="numeric" min="40" max="300" required placeholder=" " />
           <label for="sys" data-i18n="form.sys">Systolic (mmHg)</label>
@@ -286,10 +290,21 @@
           <label for="pulse" data-i18n="form.pulse">Pulse (bpm)</label>
         </div>
         <nav class="right-align no-space">
+          <button type="button" id="delete-btn" class="transparent link error-text" data-i18n="action.delete" hidden>Delete</button>
+          <div class="max"></div>
           <button type="button" id="cancel-btn" class="transparent link" data-i18n="action.cancel">Cancel</button>
           <button type="submit" class="transparent link" data-i18n="action.save">Save</button>
         </nav>
       </form>
+    </dialog>
+
+    <dialog id="delete-dialog">
+      <h5 data-i18n="delete.title">Delete measurement?</h5>
+      <p id="delete-info"></p>
+      <nav class="right-align no-space">
+        <button type="button" id="delete-cancel" class="transparent link" data-i18n="action.cancel">Cancel</button>
+        <button type="button" id="delete-confirm" class="transparent link error-text" data-i18n="action.delete">Delete</button>
+      </nav>
     </dialog>
 
     <div id="snackbar" class="snackbar"></div>

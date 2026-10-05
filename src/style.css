@@ -69,6 +69,19 @@ table th {
   white-space: nowrap;
 }
 
+tr.editable {
+  cursor: pointer;
+}
+
+tr.editable:hover {
+  background-color: var(--surface-container-high);
+}
+
+tr.editable:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: -2px;
+}
+
 .calendar {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -129,7 +142,7 @@ table th {
 }
 
 .calendar .reading.high {
-  color: var(--error);
+  color: var(--error) !important;
   font-weight: bold;
 }
 
@@ -163,4 +176,9 @@ table th {
 
 [hidden] {
   display: none !important;
+}
+
+/* BeerCSS .link sets the primary color; destructive actions stay red. */
+button.link.error-text {
+  color: var(--error) !important;
 }
