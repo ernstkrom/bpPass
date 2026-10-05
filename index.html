@@ -68,6 +68,19 @@
 
     <main class="responsive">
       <div id="home" class="page active">
+        <article id="install-banner" class="primary-container" hidden>
+          <nav>
+            <i>install_mobile</i>
+            <div class="max">
+              <h6 class="small" data-i18n="install.title">Install HeartPass</h6>
+              <div class="small-text" data-i18n="install.banner">Add the app to your home screen for quick access, offline use and a full-screen view.</div>
+            </div>
+          </nav>
+          <nav class="right-align no-space">
+            <button type="button" id="install-dismiss" class="transparent link" data-i18n="install.dismiss">Not now</button>
+            <button type="button" class="transparent link" data-install data-i18n="install.action">Install</button>
+          </nav>
+        </article>
         <nav>
           <div class="max small-text" id="avg-info"></div>
           <div class="field border small suffix no-margin">
@@ -240,6 +253,21 @@
           <input id="medilog-file" type="file" accept="text/csv,.csv" hidden />
         </article>
         <p id="storage-info" class="small-text"></p>
+
+        <div id="install-settings" hidden>
+          <div class="space"></div>
+          <h5 data-i18n="settings.app">App</h5>
+          <article>
+            <nav>
+              <i>install_mobile</i>
+              <h6 class="max small" data-i18n="install.title">Install HeartPass</h6>
+            </nav>
+            <p data-i18n="install.settingsDesc">Install the app on your device to open it from the home screen and use it offline like a native app.</p>
+            <nav class="right-align">
+              <button type="button" class="border" data-install data-i18n="install.action">Install</button>
+            </nav>
+          </article>
+        </div>
       </div>
     </main>
 
@@ -337,6 +365,66 @@
       <nav class="right-align no-space">
         <button type="button" id="delete-cancel" class="transparent link" data-i18n="action.cancel">Cancel</button>
         <button type="button" id="delete-confirm" class="transparent link error-text" data-i18n="action.delete">Delete</button>
+      </nav>
+    </dialog>
+
+    <dialog id="install-dialog">
+      <h5 data-i18n="install.title">Install HeartPass</h5>
+      <div class="install-body">
+        <div data-platform="ios">
+          <ol class="list">
+            <li>
+              <i>ios_share</i>
+              <div class="max" data-i18n-html="install.ios.share">Tap the <b>Share</b> button in the toolbar. In Safari it may be hidden behind the <b>•••</b> button.</div>
+            </li>
+            <li>
+              <i>add_box</i>
+              <div class="max" data-i18n-html="install.ios.add">Scroll down and tap <b>Add to Home Screen</b>.</div>
+            </li>
+            <li>
+              <i>check_circle</i>
+              <div class="max" data-i18n-html="install.ios.confirm">Leave <b>Open as Web App</b> switched on and tap <b>Add</b>.</div>
+            </li>
+          </ol>
+          <p class="small-text" data-i18n-html="install.ios.data">
+            The installed app keeps its own data, separate from the browser. To take existing measurements along,
+            <b>export</b> them in the settings first and <b>import</b> them in the installed app.
+          </p>
+        </div>
+        <div data-platform="android">
+          <ol class="list">
+            <li>
+              <i>more_vert</i>
+              <div class="max" data-i18n-html="install.android.menu">Open the browser menu (<b>⋮</b>).</div>
+            </li>
+            <li>
+              <i>add_to_home_screen</i>
+              <div class="max" data-i18n-html="install.android.add">Tap <b>Install app</b> or <b>Add to Home screen</b>.</div>
+            </li>
+            <li>
+              <i>check_circle</i>
+              <div class="max" data-i18n-html="install.android.confirm">Confirm with <b>Install</b>.</div>
+            </li>
+          </ol>
+        </div>
+        <div data-platform="desktop">
+          <ul class="list">
+            <li>
+              <i>install_desktop</i>
+              <div class="max" data-i18n-html="install.desktop.chrome">
+                <b>Chrome / Edge:</b> click the install icon at the right end of the address bar, or choose
+                <b>Install HeartPass</b> in the browser menu.
+              </div>
+            </li>
+            <li>
+              <i>laptop_mac</i>
+              <div class="max" data-i18n-html="install.desktop.safari"><b>Safari (Mac):</b> choose <b>File → Add to Dock</b>.</div>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <nav class="right-align no-space">
+        <button type="button" id="install-close" class="transparent link" data-i18n="action.close">Close</button>
       </nav>
     </dialog>
 

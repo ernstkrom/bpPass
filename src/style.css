@@ -171,6 +171,14 @@ tr.editable:focus-visible {
   border-radius: 0;
 }
 
+#install-banner {
+  margin-bottom: 1rem;
+}
+
+.install-body .list > li {
+  white-space: normal;
+}
+
 #guide-dialog label.checkbox {
   margin-top: 1rem;
 }

@@ -69,6 +69,26 @@ const MESSAGES = {
     'action.continue': 'Continue',
     'action.save': 'Save',
     'action.delete': 'Delete',
+    'action.close': 'Close',
+    'settings.app': 'App',
+    'install.title': 'Install HeartPass',
+    'install.banner': 'Add the app to your home screen for quick access, offline use and a full-screen view.',
+    'install.settingsDesc':
+      'Install the app on your device to open it from the home screen and use it offline like a native app.',
+    'install.dismiss': 'Not now',
+    'install.action': 'Install',
+    'install.ios.share':
+      'Tap the <b>Share</b> button in the toolbar. In Safari it may be hidden behind the <b>•••</b> button.',
+    'install.ios.add': 'Scroll down and tap <b>Add to Home Screen</b>.',
+    'install.ios.confirm': 'Leave <b>Open as Web App</b> switched on and tap <b>Add</b>.',
+    'install.ios.data':
+      'The installed app keeps its own data, separate from the browser. To take existing measurements along, <b>export</b> them in the settings first and <b>import</b> them in the installed app.',
+    'install.android.menu': 'Open the browser menu (<b>⋮</b>).',
+    'install.android.add': 'Tap <b>Install app</b> or <b>Add to Home screen</b>.',
+    'install.android.confirm': 'Confirm with <b>Install</b>.',
+    'install.desktop.chrome':
+      '<b>Chrome / Edge:</b> click the install icon at the right end of the address bar, or choose <b>Install HeartPass</b> in the browser menu.',
+    'install.desktop.safari': '<b>Safari (Mac):</b> choose <b>File → Add to Dock</b>.',
     'delete.title': 'Delete measurement?',
     'delete.info': ({ date, value }) => `The measurement ${value} from ${date} will be permanently deleted.`,
     'form.title': 'New measurement',
@@ -159,6 +179,26 @@ const MESSAGES = {
     'action.continue': 'Weiter',
     'action.save': 'Speichern',
     'action.delete': 'Löschen',
+    'action.close': 'Schließen',
+    'settings.app': 'App',
+    'install.title': 'HeartPass installieren',
+    'install.banner': 'Fügen Sie die App zum Home-Bildschirm hinzu – für schnellen Zugriff, Offline-Nutzung und Vollbildansicht.',
+    'install.settingsDesc':
+      'Installieren Sie die App auf Ihrem Gerät, um sie vom Home-Bildschirm zu öffnen und wie eine native App offline zu nutzen.',
+    'install.dismiss': 'Nicht jetzt',
+    'install.action': 'Installieren',
+    'install.ios.share':
+      'Tippen Sie in der Symbolleiste auf <b>Teilen</b>. In Safari kann sich die Taste hinter <b>•••</b> verbergen.',
+    'install.ios.add': 'Scrollen Sie nach unten und tippen Sie auf <b>Zum Home-Bildschirm</b>.',
+    'install.ios.confirm': 'Lassen Sie <b>Als Web-App öffnen</b> eingeschaltet und tippen Sie auf <b>Hinzufügen</b>.',
+    'install.ios.data':
+      'Die installierte App hat eigene Daten, getrennt vom Browser. Um vorhandene Messungen mitzunehmen, <b>exportieren</b> Sie sie zuerst in den Einstellungen und <b>importieren</b> Sie sie dann in der installierten App.',
+    'install.android.menu': 'Öffnen Sie das Browsermenü (<b>⋮</b>).',
+    'install.android.add': 'Tippen Sie auf <b>App installieren</b> oder <b>Zum Startbildschirm hinzufügen</b>.',
+    'install.android.confirm': 'Bestätigen Sie mit <b>Installieren</b>.',
+    'install.desktop.chrome':
+      '<b>Chrome / Edge:</b> Klicken Sie auf das Installationssymbol rechts in der Adressleiste oder wählen Sie im Browsermenü <b>HeartPass installieren</b>.',
+    'install.desktop.safari': '<b>Safari (Mac):</b> Wählen Sie <b>Ablage → Zum Dock hinzufügen</b>.',
     'delete.title': 'Messung löschen?',
     'delete.info': ({ date, value }) => `Die Messung ${value} vom ${date} wird endgültig gelöscht.`,
     'form.title': 'Neue Messung',

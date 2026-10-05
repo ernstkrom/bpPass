@@ -464,6 +464,65 @@ medilogInput.addEventListener('change', async () => {
   }
 });
 
+// --- Install hint -------------------------------------------------------
+
+const isStandalone = () =>
+  matchMedia('(display-mode: standalone), (display-mode: fullscreen)').matches || navigator.standalone === true;
+
+// iPadOS reports itself as a Mac, but Macs have no touch screen.
+const isIos =
+  /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const platform = isIos ? 'ios' : /Android/.test(navigator.userAgent) ? 'android' : 'desktop';
+
+// Chromium hands us the native install prompt; other browsers (Safari, Firefox) need manual steps.
+let installPrompt = null;
+const installDialog = $('#install-dialog');
+
+function updateInstallHint() {
+  const installed = isStandalone();
+  let dismissed = false;
+  try {
+    dismissed = localStorage.getItem('installHintDismissed') === 'true';
+  } catch {
+    // Ignore unavailable storage.
+  }
+  $('#install-banner').hidden = installed || dismissed;
+  $('#install-settings').hidden = installed;
+}
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  installPrompt = e;
+});
+window.addEventListener('appinstalled', () => {
+  installPrompt = null;
+  installDialog.close();
+  updateInstallHint();
+});
+
+for (const el of installDialog.querySelectorAll('[data-platform]')) el.hidden = el.dataset.platform !== platform;
+
+for (const btn of document.querySelectorAll('[data-install]')) {
+  btn.addEventListener('click', async () => {
+    if (!installPrompt) return installDialog.showModal();
+    installPrompt.prompt();
+    const { outcome } = await installPrompt.userChoice;
+    // A prompt can only be used once; the browser fires beforeinstallprompt again if it may be shown again.
+    installPrompt = null;
+    if (outcome === 'accepted') updateInstallHint();
+  });
+}
+$('#install-close').addEventListener('click', () => installDialog.close());
+$('#install-dismiss').addEventListener('click', () => {
+  try {
+    localStorage.setItem('installHintDismissed', 'true');
+  } catch {
+    // Without storage the hint simply comes back next time.
+  }
+  $('#install-banner').hidden = true;
+});
+updateInstallHint();
+
 // --- Startup ------------------------------------------------------------
 
 const SPLASH_MIN_MS = 1000;
