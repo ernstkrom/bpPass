@@ -6,6 +6,12 @@ body {
   overscroll-behavior: none;
 }
 
+/* iOS paints the area behind the status bar with the root background, which otherwise inherits the
+   light body surface and shows as a pale blur above the header. The body keeps its own surface. */
+html {
+  background-color: #6750a4;
+}
+
 body {
   /* No long-press callout (iOS), text selection or double-tap zoom on UI chrome. */
   -webkit-touch-callout: none;
