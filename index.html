@@ -1,435 +1,465 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#6750a4" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="apple-mobile-web-app-title" content="HeartPass" />
-    <meta name="format-detection" content="telephone=no" />
-    <meta name="description" content="Track your blood pressure measurements offline." />
-    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <title>HeartPass</title>
-    <style>
-      /* Launch screen, inlined so it paints before the CSS and JS bundles load. Only shown when
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#6750a4" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="HeartPass" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="description" content="Track your blood pressure measurements offline." />
+  <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <title>HeartPass</title>
+  <style>
+    /* Launch screen, inlined so it paints before the CSS and JS bundles load. Only shown when
          running as an installed app; main.js fades it out once the first render is done. */
+    #splash {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      background: #6750a4;
+      transition: opacity 0.3s ease;
+    }
+
+    #splash svg {
+      width: 8rem;
+      height: 8rem;
+    }
+
+    #splash.hide {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    @media (display-mode: standalone),
+    (display-mode: fullscreen) {
       #splash {
-        display: none;
-        position: fixed;
-        inset: 0;
-        z-index: 1000;
-        align-items: center;
-        justify-content: center;
-        background: #6750a4;
-        transition: opacity 0.3s ease;
+        display: flex;
       }
-      #splash svg {
-        width: 8rem;
-        height: 8rem;
-      }
-      #splash.hide {
-        opacity: 0;
-        pointer-events: none;
-      }
-      @media (display-mode: standalone), (display-mode: fullscreen) {
-        #splash {
-          display: flex;
-        }
-      }
-    </style>
-  </head>
-  <body class="light">
-    <div id="splash" aria-hidden="true">
-      <svg viewBox="0 0 512 512">
-        <path d="M256 400s-136-84-136-180a76 76 0 0 1 136-46 76 76 0 0 1 136 46c0 96-136 180-136 180z" fill="#fff"/>
-        <path d="M150 250h60l24-48 40 96 24-48h64" fill="none" stroke="#6750a4" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </div>
-    <!-- <header class="fixed primary">
+    }
+  </style>
+</head>
+
+<body class="light">
+  <div id="splash" aria-hidden="true">
+    <svg viewBox="0 0 512 512">
+      <path d="M256 400s-136-84-136-180a76 76 0 0 1 136-46 76 76 0 0 1 136 46c0 96-136 180-136 180z" fill="#fff" />
+      <path d="M150 250h60l24-48 40 96 24-48h64" fill="none" stroke="#6750a4" stroke-width="18" stroke-linecap="round"
+        stroke-linejoin="round" />
+    </svg>
+  </div>
+  <!-- <header class="fixed primary">
       <nav>
         <i>favorite</i>
         <h6 class="max">HeartPass</h6>
       </nav>
     </header> -->
 
-    <nav class="bottom">
-      <a href="#home" data-page="home" class="active">
-        <i>home</i>
-        <span data-i18n="nav.home">Home</span>
-      </a>
-      <a href="#settings" data-page="settings">
-        <i>settings</i>
-        <span data-i18n="nav.settings">Settings</span>
-      </a>
-    </nav>
+  <nav class="bottom">
+    <a href="#home" data-page="home" class="active">
+      <i>home</i>
+      <span data-i18n="nav.home">Home</span>
+    </a>
+    <a href="#settings" data-page="settings">
+      <i>settings</i>
+      <span data-i18n="nav.settings">Settings</span>
+    </a>
+  </nav>
 
-    <main class="responsive">
-      <div id="home" class="page active">
-        <article id="install-banner" class="primary-container" hidden>
-          <nav>
-            <i>install_mobile</i>
-            <div class="max">
-              <h6 class="small" data-i18n="install.title">Install HeartPass</h6>
-              <div class="small-text" data-i18n="install.banner">Add the app to your home screen for quick access, offline use and a full-screen view.</div>
-            </div>
-          </nav>
-          <nav class="right-align no-space">
-            <button type="button" id="install-dismiss" class="transparent link" data-i18n="install.dismiss">Not now</button>
-            <button type="button" class="transparent link" data-install data-i18n="install.action">Install</button>
-          </nav>
-        </article>
+  <main class="responsive">
+    <div id="home" class="page active">
+      <article id="install-banner" class="primary-container" hidden>
         <nav>
-          <div class="max small-text" id="avg-info"></div>
-          <div class="field border small suffix no-margin">
-            <select id="avg-period" data-i18n-aria="period.label" aria-label="Averaging period">
-              <option value="7d" data-i18n="period.7d">Last 7 days</option>
-              <option value="14d" data-i18n="period.14d">Last 14 days</option>
-              <option value="1m" data-i18n="period.1m">Last month</option>
-              <option value="3m" data-i18n="period.3m">Last 3 months</option>
-              <option value="6m" data-i18n="period.6m">Last 6 months</option>
-              <option value="1y" data-i18n="period.1y">Last year</option>
-              <option value="all" data-i18n="period.all">All time</option>
-            </select>
-            <i>arrow_drop_down</i>
+          <i>install_mobile</i>
+          <div class="max">
+            <h6 class="small" data-i18n="install.title">Install HeartPass</h6>
+            <div class="small-text" data-i18n="install.banner">Add the app to your home screen for quick access, offline
+              use and a full-screen view.</div>
           </div>
         </nav>
-        <div class="space"></div>
-        <div class="grid">
-          <article class="s4 m4 l4 center-align stat">
-            <div class="small-text" data-i18n="avg.sys">Avg. systolic</div>
-            <h4 id="avg-sys">–</h4>
-            <div class="small-text">mmHg</div>
-          </article>
-          <article class="s4 m4 l4 center-align stat">
-            <div class="small-text" data-i18n="avg.dia">Avg. diastolic</div>
-            <h4 id="avg-dia">–</h4>
-            <div class="small-text">mmHg</div>
-          </article>
-          <article class="s4 m4 l4 center-align stat">
-            <div class="small-text" data-i18n="avg.map">MAP</div>
-            <h4 id="avg-map">–</h4>
-            <div class="small-text">mmHg</div>
-          </article>
-        </div>
-
-        <div class="space"></div>
-
-        <nav class="group connected">
-          <button id="view-list" class="left-round active" data-view="list">
-            <i>list</i>
-            <span data-i18n="view.list">List</span>
-          </button>
-          <button id="view-calendar" class="right-round" data-view="calendar">
-            <i>calendar_month</i>
-            <span data-i18n="view.calendar">Calendar</span>
-          </button>
+        <nav class="right-align no-space">
+          <button type="button" id="install-dismiss" class="transparent link" data-i18n="install.dismiss">Not
+            now</button>
+          <button type="button" class="transparent link" data-install data-i18n="install.action">Install</button>
         </nav>
+      </article>
 
-        <div class="space"></div>
+      <!-- <div class="space"></div> -->
+      <div class="grid">
+        <article class="s4 m4 l4 center-align stat">
+          <div class="small-text" data-i18n="avg.sys">Avg. systolic</div>
+          <h4 id="avg-sys">–</h4>
+          <div class="small-text">mmHg</div>
+        </article>
+        <article class="s4 m4 l4 center-align stat">
+          <div class="small-text" data-i18n="avg.dia">Avg. diastolic</div>
+          <h4 id="avg-dia">–</h4>
+          <div class="small-text">mmHg</div>
+        </article>
+        <article class="s4 m4 l4 center-align stat">
+          <div class="small-text" data-i18n="avg.map">MAP</div>
+          <h4 id="avg-map">–</h4>
+          <div class="small-text">mmHg</div>
+        </article>
+      </div>
+      <!-- <div class="space"></div> -->
+      <nav>
+        <div class="max small-text" id="avg-info"></div>
+        <div class="field border small suffix no-margin">
+          <select id="avg-period" data-i18n-aria="period.label" aria-label="Averaging period">
+            <option value="7d" data-i18n="period.7d">Last 7 days</option>
+            <option value="14d" data-i18n="period.14d">Last 14 days</option>
+            <option value="1m" data-i18n="period.1m">Last month</option>
+            <option value="3m" data-i18n="period.3m">Last 3 months</option>
+            <option value="6m" data-i18n="period.6m">Last 6 months</option>
+            <option value="1y" data-i18n="period.1y">Last year</option>
+            <option value="all" data-i18n="period.all">All time</option>
+          </select>
+          <i>arrow_drop_down</i>
+        </div>
+      </nav>
 
-        <article id="list-view" class="no-padding">
+      <div class="space"></div>
+
+      <nav class="group connected">
+        <button id="view-list" class="left-round active" data-view="list">
+          <i>list</i>
+          <span data-i18n="view.list">List</span>
+        </button>
+        <button id="view-calendar" class="right-round" data-view="calendar">
+          <i>calendar_month</i>
+          <span data-i18n="view.calendar">Calendar</span>
+        </button>
+      </nav>
+
+      <div class="space"></div>
+
+      <article id="list-view" class="no-padding">
+        <table class="stripes">
+          <thead>
+            <tr>
+              <th data-i18n="col.date">Date</th>
+              <th class="right-align">SYS</th>
+              <th class="right-align">DIA</th>
+              <th class="right-align" data-i18n="col.pulse">Pulse</th>
+            </tr>
+          </thead>
+          <tbody id="measurements"></tbody>
+        </table>
+        <p id="empty" class="center-align padding" data-i18n-html="list.empty">No measurements yet. Tap <b>+</b> to add
+          one.</p>
+      </article>
+
+      <div id="calendar-view" hidden>
+        <article>
+          <nav>
+            <button id="cal-prev" class="circle transparent" data-i18n-aria="cal.prev"
+              aria-label="Previous month"><i>chevron_left</i></button>
+            <h6 id="cal-title" class="max center-align small"></h6>
+            <button id="cal-next" class="circle transparent" data-i18n-aria="cal.next"
+              aria-label="Next month"><i>chevron_right</i></button>
+          </nav>
+          <div id="calendar" class="calendar"></div>
+        </article>
+        <article class="no-padding">
+          <h6 id="day-title" class="small padding"></h6>
           <table class="stripes">
             <thead>
               <tr>
-                <th data-i18n="col.date">Date</th>
+                <th data-i18n="col.time">Time</th>
                 <th class="right-align">SYS</th>
                 <th class="right-align">DIA</th>
                 <th class="right-align" data-i18n="col.pulse">Pulse</th>
               </tr>
             </thead>
-            <tbody id="measurements"></tbody>
+            <tbody id="day-measurements"></tbody>
           </table>
-          <p id="empty" class="center-align padding" data-i18n-html="list.empty">No measurements yet. Tap <b>+</b> to add one.</p>
+          <p id="day-empty" class="center-align padding" data-i18n="cal.dayEmpty">No measurements on this day.</p>
         </article>
-
-        <div id="calendar-view" hidden>
-          <article>
-            <nav>
-              <button id="cal-prev" class="circle transparent" data-i18n-aria="cal.prev" aria-label="Previous month"><i>chevron_left</i></button>
-              <h6 id="cal-title" class="max center-align small"></h6>
-              <button id="cal-next" class="circle transparent" data-i18n-aria="cal.next" aria-label="Next month"><i>chevron_right</i></button>
-            </nav>
-            <div id="calendar" class="calendar"></div>
-          </article>
-          <article class="no-padding">
-            <h6 id="day-title" class="small padding"></h6>
-            <table class="stripes">
-              <thead>
-                <tr>
-                  <th data-i18n="col.time">Time</th>
-                  <th class="right-align">SYS</th>
-                  <th class="right-align">DIA</th>
-                  <th class="right-align" data-i18n="col.pulse">Pulse</th>
-                </tr>
-              </thead>
-              <tbody id="day-measurements"></tbody>
-            </table>
-            <p id="day-empty" class="center-align padding" data-i18n="cal.dayEmpty">No measurements on this day.</p>
-          </article>
-        </div>
-        <div class="large-space"></div>
       </div>
+      <div class="large-space"></div>
+    </div>
 
-      <div id="settings" class="page">
-        <h5 data-i18n="settings.display">Display</h5>
-        <article>
-          <nav>
-            <i>language</i>
-            <h6 class="max small" data-i18n="settings.language">Language</h6>
-            <div class="field border small suffix no-margin">
-              <select id="language" data-i18n-aria="settings.language" aria-label="Language">
-                <option value="auto" data-i18n="settings.languageAuto">Automatic (system)</option>
-                <option value="en">English</option>
-                <option value="de">Deutsch</option>
-              </select>
-              <i>arrow_drop_down</i>
-            </div>
-          </nav>
-          <p data-i18n="settings.languageDesc">Language of the app.</p>
-        </article>
-        <article>
-          <nav>
-            <i>visibility</i>
-            <h6 class="max small" data-i18n="settings.colorblind">Colorblind mode</h6>
-            <label class="switch">
-              <input id="colorblind" type="checkbox" />
-              <span></span>
-            </label>
-          </nav>
-          <p data-i18n="settings.colorblindDesc">Highlight elevated readings with a high-contrast marker instead of red text.</p>
-        </article>
-        <article>
-          <nav>
-            <i>info</i>
-            <h6 class="max small" data-i18n="settings.guide">Measurement instructions</h6>
-            <label class="switch">
-              <input id="show-guide" type="checkbox" />
-              <span></span>
-            </label>
-          </nav>
-          <p data-i18n="settings.guideDesc">Show how to measure correctly each time you add a new measurement.</p>
-        </article>
-
-        <div class="space"></div>
-
-        <h5 data-i18n="settings.data">Data</h5>
-        <article>
-          <nav>
-            <i>upload</i>
-            <h6 class="max small" data-i18n="settings.export">Export</h6>
-          </nav>
-          <p data-i18n="settings.exportDesc">Download all measurements as a JSON file.</p>
-          <nav class="right-align">
-            <button id="export-btn" class="border" data-i18n="settings.export">Export</button>
-          </nav>
-        </article>
-        <article>
-          <nav>
-            <i>download</i>
-            <h6 class="max small" data-i18n="settings.import">Import</h6>
-          </nav>
-          <p data-i18n="settings.importDesc">Load measurements from a JSON file. Entries with the same id are replaced.</p>
-          <nav class="right-align">
-            <button id="import-btn" class="border" data-i18n="settings.import">Import</button>
-          </nav>
-          <input id="import-file" type="file" accept="application/json,.json" hidden />
-        </article>
-        <article>
-          <nav>
-            <i>smartphone</i>
-            <h6 class="max small" data-i18n="settings.medilog">Import from MediLog</h6>
-          </nav>
-          <p data-i18n-html="settings.medilogDesc">
-            Load blood pressure readings from a MediLog (Android) backup. Select the
-            <b>MediLog-Data.csv</b> file; other data types are ignored and re-importing the same file creates no
-            duplicates.
-          </p>
-          <nav class="right-align">
-            <button id="medilog-btn" class="border" data-i18n="settings.medilogBtn">Import CSV</button>
-          </nav>
-          <input id="medilog-file" type="file" accept="text/csv,.csv" hidden />
-        </article>
-        <p id="storage-info" class="small-text"></p>
-
-        <div id="install-settings" hidden>
-          <div class="space"></div>
-          <h5 data-i18n="settings.app">App</h5>
-          <article>
-            <nav>
-              <i>install_mobile</i>
-              <h6 class="max small" data-i18n="install.title">Install HeartPass</h6>
-            </nav>
-            <p data-i18n="install.settingsDesc">Install the app on your device to open it from the home screen and use it offline like a native app.</p>
-            <nav class="right-align">
-              <button type="button" class="border" data-install data-i18n="install.action">Install</button>
-            </nav>
-          </article>
-        </div>
-      </div>
-    </main>
-
-    <button id="add-btn" class="fab square round extra" data-i18n-aria="add.label" aria-label="Add measurement">
-      <i>add</i>
-    </button>
-
-    <dialog id="guide-dialog">
-      <h5 data-i18n="guide.title">Before you measure</h5>
-      <div class="guide-body">
-        <h6 class="small" data-i18n="guide.preparation">Preparation</h6>
-        <ul class="list">
-          <li>
-            <i>smoke_free</i>
-            <div class="max" data-i18n="guide.noSmoking">No smoking, coffee, food or exercise for 30 minutes beforehand</div>
-          </li>
-          <li>
-            <i>volume_off</i>
-            <div class="max" data-i18n="guide.quiet">Quiet surroundings</div>
-          </li>
-          <li>
-            <i>thermostat</i>
-            <div class="max" data-i18n="guide.temperature">Comfortable room temperature</div>
-          </li>
-          <li>
-            <i>timer</i>
-            <div class="max" data-i18n="guide.rest">Rest for 5 minutes before measuring</div>
-          </li>
-          <li>
-            <i>voice_over_off</i>
-            <div class="max" data-i18n="guide.noTalking">Don't talk during or between measurements</div>
-          </li>
-        </ul>
-        <h6 class="small" data-i18n="guide.position">Position</h6>
-        <ul class="list">
-          <li>
-            <i>chair</i>
-            <div class="max" data-i18n="guide.sit">Sit with your back supported and both feet flat on the floor</div>
-          </li>
-          <li>
-            <i>front_hand</i>
-            <div class="max" data-i18n="guide.arm">Bare arm resting on a table, the middle of the upper arm at heart level</div>
-          </li>
-          <li>
-            <i>straighten</i>
-            <div class="max" data-i18n="guide.cuff">Use a cuff that fits your arm circumference (small, normal or large)</div>
-          </li>
-          <li>
-            <i>verified</i>
-            <div class="max" data-i18n="guide.device">Use a validated electronic upper-arm monitor</div>
-          </li>
-        </ul>
-      </div>
-      <label class="checkbox">
-        <input id="guide-hide" type="checkbox" />
-        <span data-i18n="guide.hide">Don't show this again</span>
-      </label>
-      <nav class="right-align no-space">
-        <button type="button" id="guide-cancel" class="transparent link" data-i18n="action.cancel">Cancel</button>
-        <button type="button" id="guide-continue" class="transparent link" data-i18n="action.continue">Continue</button>
-      </nav>
-    </dialog>
-
-    <dialog id="add-dialog">
-      <h5 id="form-title" data-i18n="form.title">New measurement</h5>
-      <form id="add-form" method="dialog">
-        <div class="field label border" hidden>
-          <input id="date" name="date" type="datetime-local" required disabled placeholder=" " />
-          <label for="date" data-i18n="form.date">Date and time</label>
-        </div>
-        <div class="field label border">
-          <input id="sys" name="systolic" type="number" inputmode="numeric" min="40" max="300" required placeholder=" " />
-          <label for="sys" data-i18n="form.sys">Systolic (mmHg)</label>
-        </div>
-        <div class="field label border">
-          <input id="dia" name="diastolic" type="number" inputmode="numeric" min="20" max="200" required placeholder=" " />
-          <label for="dia" data-i18n="form.dia">Diastolic (mmHg)</label>
-        </div>
-        <div class="field label border">
-          <input id="pulse" name="pulse" type="number" inputmode="numeric" min="20" max="250" required placeholder=" " />
-          <label for="pulse" data-i18n="form.pulse">Pulse (bpm)</label>
-        </div>
-        <nav class="right-align no-space">
-          <button type="button" id="delete-btn" class="transparent link error-text" data-i18n="action.delete" hidden>Delete</button>
-          <div class="max"></div>
-          <button type="button" id="cancel-btn" class="transparent link" data-i18n="action.cancel">Cancel</button>
-          <button type="submit" class="transparent link" data-i18n="action.save">Save</button>
+    <div id="settings" class="page">
+      <div class="space"></div>
+      <h5 data-i18n="settings.display">Display</h5>
+      <article>
+        <nav>
+          <i>language</i>
+          <h6 class="max small" data-i18n="settings.language">Language</h6>
+          <div class="field border small suffix no-margin">
+            <select id="language" data-i18n-aria="settings.language" aria-label="Language">
+              <option value="auto" data-i18n="settings.languageAuto">Automatic (system)</option>
+              <option value="en">English</option>
+              <option value="de">Deutsch</option>
+            </select>
+            <i>arrow_drop_down</i>
+          </div>
         </nav>
-      </form>
-    </dialog>
+        <p data-i18n="settings.languageDesc">Language of the app.</p>
+      </article>
+      <article>
+        <nav>
+          <i>visibility</i>
+          <h6 class="max small" data-i18n="settings.colorblind">Colorblind mode</h6>
+          <label class="switch">
+            <input id="colorblind" type="checkbox" />
+            <span></span>
+          </label>
+        </nav>
+        <p data-i18n="settings.colorblindDesc">Highlight elevated readings with a high-contrast marker instead of red
+          text.</p>
+      </article>
+      <article>
+        <nav>
+          <i>info</i>
+          <h6 class="max small" data-i18n="settings.guide">Measurement instructions</h6>
+          <label class="switch">
+            <input id="show-guide" type="checkbox" />
+            <span></span>
+          </label>
+        </nav>
+        <p data-i18n="settings.guideDesc">Show how to measure correctly each time you add a new measurement.</p>
+      </article>
 
-    <dialog id="delete-dialog">
-      <h5 data-i18n="delete.title">Delete measurement?</h5>
-      <p id="delete-info"></p>
-      <nav class="right-align no-space">
-        <button type="button" id="delete-cancel" class="transparent link" data-i18n="action.cancel">Cancel</button>
-        <button type="button" id="delete-confirm" class="transparent link error-text" data-i18n="action.delete">Delete</button>
-      </nav>
-    </dialog>
+      <div class="space"></div>
 
-    <dialog id="install-dialog">
-      <h5 data-i18n="install.title">Install HeartPass</h5>
-      <div class="install-body">
-        <div data-platform="ios">
-          <ol class="list">
-            <li>
-              <i>ios_share</i>
-              <div class="max" data-i18n-html="install.ios.share">Tap the <b>Share</b> button in the toolbar. In Safari it may be hidden behind the <b>•••</b> button.</div>
-            </li>
-            <li>
-              <i>add_box</i>
-              <div class="max" data-i18n-html="install.ios.add">Scroll down and tap <b>Add to Home Screen</b>.</div>
-            </li>
-            <li>
-              <i>check_circle</i>
-              <div class="max" data-i18n-html="install.ios.confirm">Leave <b>Open as Web App</b> switched on and tap <b>Add</b>.</div>
-            </li>
-          </ol>
-          <p class="small-text" data-i18n-html="install.ios.data">
-            The installed app keeps its own data, separate from the browser. To take existing measurements along,
-            <b>export</b> them in the settings first and <b>import</b> them in the installed app.
-          </p>
-        </div>
-        <div data-platform="android">
-          <ol class="list">
-            <li>
-              <i>more_vert</i>
-              <div class="max" data-i18n-html="install.android.menu">Open the browser menu (<b>⋮</b>).</div>
-            </li>
-            <li>
-              <i>add_to_home_screen</i>
-              <div class="max" data-i18n-html="install.android.add">Tap <b>Install app</b> or <b>Add to Home screen</b>.</div>
-            </li>
-            <li>
-              <i>check_circle</i>
-              <div class="max" data-i18n-html="install.android.confirm">Confirm with <b>Install</b>.</div>
-            </li>
-          </ol>
-        </div>
-        <div data-platform="desktop">
-          <ul class="list">
-            <li>
-              <i>install_desktop</i>
-              <div class="max" data-i18n-html="install.desktop.chrome">
-                <b>Chrome / Edge:</b> click the install icon at the right end of the address bar, or choose
-                <b>Install HeartPass</b> in the browser menu.
-              </div>
-            </li>
-            <li>
-              <i>laptop_mac</i>
-              <div class="max" data-i18n-html="install.desktop.safari"><b>Safari (Mac):</b> choose <b>File → Add to Dock</b>.</div>
-            </li>
-          </ul>
-        </div>
+      <h5 data-i18n="settings.data">Data</h5>
+      <article>
+        <nav>
+          <i>upload</i>
+          <h6 class="max small" data-i18n="settings.export">Export</h6>
+        </nav>
+        <p data-i18n="settings.exportDesc">Download all measurements as a JSON file.</p>
+        <nav class="right-align">
+          <button id="export-btn" class="border" data-i18n="settings.export">Export</button>
+        </nav>
+      </article>
+      <article>
+        <nav>
+          <i>download</i>
+          <h6 class="max small" data-i18n="settings.import">Import</h6>
+        </nav>
+        <p data-i18n="settings.importDesc">Load measurements from a JSON file. Entries with the same id are replaced.
+        </p>
+        <nav class="right-align">
+          <button id="import-btn" class="border" data-i18n="settings.import">Import</button>
+        </nav>
+        <input id="import-file" type="file" accept="application/json,.json" hidden />
+      </article>
+      <article>
+        <nav>
+          <i>smartphone</i>
+          <h6 class="max small" data-i18n="settings.medilog">Import from MediLog</h6>
+        </nav>
+        <p data-i18n-html="settings.medilogDesc">
+          Load blood pressure readings from a MediLog (Android) backup. Select the
+          <b>MediLog-Data.csv</b> file; other data types are ignored and re-importing the same file creates no
+          duplicates.
+        </p>
+        <nav class="right-align">
+          <button id="medilog-btn" class="border" data-i18n="settings.medilogBtn">Import CSV</button>
+        </nav>
+        <input id="medilog-file" type="file" accept="text/csv,.csv" hidden />
+      </article>
+      <p id="storage-info" class="small-text"></p>
+
+      <div id="install-settings" hidden>
+        <div class="space"></div>
+        <h5 data-i18n="settings.app">App</h5>
+        <article>
+          <nav>
+            <i>install_mobile</i>
+            <h6 class="max small" data-i18n="install.title">Install HeartPass</h6>
+          </nav>
+          <p data-i18n="install.settingsDesc">Install the app on your device to open it from the home screen and use it
+            offline like a native app.</p>
+          <nav class="right-align">
+            <button type="button" class="border" data-install data-i18n="install.action">Install</button>
+          </nav>
+        </article>
+      </div>
+    </div>
+  </main>
+
+  <button id="add-btn" class="fab square round extra" data-i18n-aria="add.label" aria-label="Add measurement">
+    <i>add</i>
+  </button>
+
+  <dialog id="guide-dialog">
+    <h5 data-i18n="guide.title">Before you measure</h5>
+    <div class="guide-body">
+      <h6 class="small" data-i18n="guide.preparation">Preparation</h6>
+      <ul class="list">
+        <li>
+          <i>smoke_free</i>
+          <div class="max" data-i18n="guide.noSmoking">No smoking, coffee, food or exercise for 30 minutes beforehand
+          </div>
+        </li>
+        <li>
+          <i>volume_off</i>
+          <div class="max" data-i18n="guide.quiet">Quiet surroundings</div>
+        </li>
+        <li>
+          <i>thermostat</i>
+          <div class="max" data-i18n="guide.temperature">Comfortable room temperature</div>
+        </li>
+        <li>
+          <i>timer</i>
+          <div class="max" data-i18n="guide.rest">Rest for 5 minutes before measuring</div>
+        </li>
+        <li>
+          <i>voice_over_off</i>
+          <div class="max" data-i18n="guide.noTalking">Don't talk during or between measurements</div>
+        </li>
+      </ul>
+      <h6 class="small" data-i18n="guide.position">Position</h6>
+      <ul class="list">
+        <li>
+          <i>chair</i>
+          <div class="max" data-i18n="guide.sit">Sit with your back supported and both feet flat on the floor</div>
+        </li>
+        <li>
+          <i>front_hand</i>
+          <div class="max" data-i18n="guide.arm">Bare arm resting on a table, the middle of the upper arm at heart level
+          </div>
+        </li>
+        <li>
+          <i>straighten</i>
+          <div class="max" data-i18n="guide.cuff">Use a cuff that fits your arm circumference (small, normal or large)
+          </div>
+        </li>
+        <li>
+          <i>verified</i>
+          <div class="max" data-i18n="guide.device">Use a validated electronic upper-arm monitor</div>
+        </li>
+      </ul>
+    </div>
+    <label class="checkbox">
+      <input id="guide-hide" type="checkbox" />
+      <span data-i18n="guide.hide">Don't show this again</span>
+    </label>
+    <nav class="right-align no-space">
+      <button type="button" id="guide-cancel" class="transparent link" data-i18n="action.cancel">Cancel</button>
+      <button type="button" id="guide-continue" class="transparent link" data-i18n="action.continue">Continue</button>
+    </nav>
+  </dialog>
+
+  <dialog id="add-dialog">
+    <h5 id="form-title" data-i18n="form.title">New measurement</h5>
+    <form id="add-form" method="dialog">
+      <div class="field label border" hidden>
+        <input id="date" name="date" type="datetime-local" required disabled placeholder=" " />
+        <label for="date" data-i18n="form.date">Date and time</label>
+      </div>
+      <div class="field label border">
+        <input id="sys" name="systolic" type="number" inputmode="numeric" min="40" max="300" required placeholder=" " />
+        <label for="sys" data-i18n="form.sys">Systolic (mmHg)</label>
+      </div>
+      <div class="field label border">
+        <input id="dia" name="diastolic" type="number" inputmode="numeric" min="20" max="200" required
+          placeholder=" " />
+        <label for="dia" data-i18n="form.dia">Diastolic (mmHg)</label>
+      </div>
+      <div class="field label border">
+        <input id="pulse" name="pulse" type="number" inputmode="numeric" min="20" max="250" required placeholder=" " />
+        <label for="pulse" data-i18n="form.pulse">Pulse (bpm)</label>
       </div>
       <nav class="right-align no-space">
-        <button type="button" id="install-close" class="transparent link" data-i18n="action.close">Close</button>
+        <button type="button" id="delete-btn" class="transparent link error-text" data-i18n="action.delete"
+          hidden>Delete</button>
+        <div class="max"></div>
+        <button type="button" id="cancel-btn" class="transparent link" data-i18n="action.cancel">Cancel</button>
+        <button type="submit" class="transparent link" data-i18n="action.save">Save</button>
       </nav>
-    </dialog>
+    </form>
+  </dialog>
 
-    <div id="snackbar" class="snackbar"></div>
+  <dialog id="delete-dialog">
+    <h5 data-i18n="delete.title">Delete measurement?</h5>
+    <p id="delete-info"></p>
+    <nav class="right-align no-space">
+      <button type="button" id="delete-cancel" class="transparent link" data-i18n="action.cancel">Cancel</button>
+      <button type="button" id="delete-confirm" class="transparent link error-text"
+        data-i18n="action.delete">Delete</button>
+    </nav>
+  </dialog>
 
-    <script type="module" src="/src/main.js"></script>
-  </body>
+  <dialog id="install-dialog">
+    <h5 data-i18n="install.title">Install HeartPass</h5>
+    <div class="install-body">
+      <div data-platform="ios">
+        <ol class="list">
+          <li>
+            <i>ios_share</i>
+            <div class="max" data-i18n-html="install.ios.share">Tap the <b>Share</b> button in the toolbar. In Safari it
+              may be hidden behind the <b>•••</b> button.</div>
+          </li>
+          <li>
+            <i>add_box</i>
+            <div class="max" data-i18n-html="install.ios.add">Scroll down and tap <b>Add to Home Screen</b>.</div>
+          </li>
+          <li>
+            <i>check_circle</i>
+            <div class="max" data-i18n-html="install.ios.confirm">Leave <b>Open as Web App</b> switched on and tap
+              <b>Add</b>.
+            </div>
+          </li>
+        </ol>
+        <p class="small-text" data-i18n-html="install.ios.data">
+          The installed app keeps its own data, separate from the browser. To take existing measurements along,
+          <b>export</b> them in the settings first and <b>import</b> them in the installed app.
+        </p>
+      </div>
+      <div data-platform="android">
+        <ol class="list">
+          <li>
+            <i>more_vert</i>
+            <div class="max" data-i18n-html="install.android.menu">Open the browser menu (<b>⋮</b>).</div>
+          </li>
+          <li>
+            <i>add_to_home_screen</i>
+            <div class="max" data-i18n-html="install.android.add">Tap <b>Install app</b> or <b>Add to Home screen</b>.
+            </div>
+          </li>
+          <li>
+            <i>check_circle</i>
+            <div class="max" data-i18n-html="install.android.confirm">Confirm with <b>Install</b>.</div>
+          </li>
+        </ol>
+      </div>
+      <div data-platform="desktop">
+        <ul class="list">
+          <li>
+            <i>install_desktop</i>
+            <div class="max" data-i18n-html="install.desktop.chrome">
+              <b>Chrome / Edge:</b> click the install icon at the right end of the address bar, or choose
+              <b>Install HeartPass</b> in the browser menu.
+            </div>
+          </li>
+          <li>
+            <i>laptop_mac</i>
+            <div class="max" data-i18n-html="install.desktop.safari"><b>Safari (Mac):</b> choose <b>File → Add to
+                Dock</b>.</div>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <nav class="right-align no-space">
+      <button type="button" id="install-close" class="transparent link" data-i18n="action.close">Close</button>
+    </nav>
+  </dialog>
+
+  <div id="snackbar" class="snackbar"></div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+
 </html>
