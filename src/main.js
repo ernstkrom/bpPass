@@ -120,11 +120,10 @@ function renderAverages() {
     const dia = avg(list, 'diastolic');
     // Mean arterial pressure ≈ DBP + (SBP − DBP) / 3
     const map = dia + (sys - dia) / 3;
-    $('#avg-sys').textContent = Math.round(sys);
-    $('#avg-dia').textContent = Math.round(dia);
+    $('#avg-bp').textContent = `${Math.round(sys)}/${Math.round(dia)}`;
     $('#avg-map').textContent = Math.round(map);
   } else {
-    $('#avg-sys').textContent = $('#avg-dia').textContent = $('#avg-map').textContent = '–';
+    $('#avg-bp').textContent = $('#avg-map').textContent = '–';
   }
 }
 
