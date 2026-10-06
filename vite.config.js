@@ -10,6 +10,10 @@ export default defineConfig({
   plugins: [
     VitePWA({
       registerType: 'autoUpdate',
+      // Own service worker (src/sw.js) for measurement reminders; Workbox still injects the precache list.
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.js',
       includeAssets: ['icon.svg', 'apple-touch-icon.png'],
       manifest: {
         name: 'HeartPass',
@@ -25,7 +29,7 @@ export default defineConfig({
           { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
-      workbox: {
+      injectManifest: {
         // Precache everything, including BeerCSS's Material Symbols fonts, so the app works fully offline.
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
         maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,

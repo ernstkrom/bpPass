@@ -11,6 +11,16 @@ import {
 } from './storage.js';
 import { parseMedilogCsv } from './medilog.js';
 import { t, translatePage, locale, getLanguagePreference, setLanguagePreference } from './i18n.js';
+import {
+  DEFAULT_CONFIG,
+  SLOTS,
+  SYNC_TAG,
+  checkReminders,
+  loadConfig,
+  localDate,
+  saveConfig,
+  seriesRange,
+} from './reminders.js';
 
 registerSW({ immediate: true });
 translatePage();
@@ -62,7 +72,11 @@ const onScroll = () => {
 window.addEventListener('scroll', onScroll, { passive: true });
 onScroll();
 
-window.addEventListener('hashchange', () => showPage(location.hash.slice(1)));
+window.addEventListener('hashchange', () => {
+  // Opened from a reminder notification.
+  if (location.hash === '#add') startMeasurement();
+  else showPage(location.hash.slice(1));
+});
 showPage(location.hash.slice(1));
 
 // --- Home ---------------------------------------------------------------
@@ -152,15 +166,17 @@ function draw() {
 async function render() {
   measurements = await listMeasurements();
   draw();
+  setLatestMeasurement(measurements[0]?.date ?? null);
   return measurements;
 }
 
 // --- Calendar -----------------------------------------------------------
 
-let dateFormat, monthFormat, dayFormat, timeFormat, weekdayFormat;
+let dateFormat, shortDateFormat, monthFormat, dayFormat, timeFormat, weekdayFormat;
 function createFormats() {
   const loc = locale();
   dateFormat = new Intl.DateTimeFormat(loc, { dateStyle: 'medium', timeStyle: 'short' });
+  shortDateFormat = new Intl.DateTimeFormat(loc, { dateStyle: 'medium' });
   monthFormat = new Intl.DateTimeFormat(loc, { month: 'long', year: 'numeric' });
   dayFormat = new Intl.DateTimeFormat(loc, { dateStyle: 'full' });
   timeFormat = new Intl.DateTimeFormat(loc, { timeStyle: 'short' });
@@ -335,14 +351,18 @@ function openEditDialog(m) {
   dialog.showModal();
 }
 
-$('#add-btn').addEventListener('click', () => {
+function startMeasurement() {
+  if (location.hash === '#add') history.replaceState(null, '', '#home');
+  showPage('home');
+  if (dialog.open || guideDialog.open) return;
   if (showGuideToggle.checked) {
     guideHide.checked = false;
     guideDialog.showModal();
   } else {
     openAddDialog();
   }
-});
+}
+$('#add-btn').addEventListener('click', startMeasurement);
 $('#guide-cancel').addEventListener('click', () => guideDialog.close());
 $('#guide-continue').addEventListener('click', () => {
   if (guideHide.checked) setShowGuide(false);
@@ -408,6 +428,8 @@ languageSelect.addEventListener('change', () => {
   setLanguagePreference(languageSelect.value);
   createFormats();
   draw();
+  // Reminder notifications carry their text, so store it in the new language.
+  updateReminders({});
 });
 
 const colorblindToggle = $('#colorblind');
@@ -536,6 +558,136 @@ $('#install-dismiss').addEventListener('click', () => {
 });
 updateInstallHint();
 
+// --- Reminders ----------------------------------------------------------
+
+const remindersToggle = $('#reminders');
+const reminderMode = $('#reminder-mode');
+const reminderTimes = { morning: $('#reminder-morning'), evening: $('#reminder-evening') };
+const canNotify = 'Notification' in window && 'serviceWorker' in navigator;
+
+let reminderConfig = { ...DEFAULT_CONFIG };
+const remindersLoaded = loadConfig()
+  .then((config) => (reminderConfig = config))
+  .catch(() => {
+    // Without the Cache API reminders stay off.
+  });
+
+const reminderTexts = () =>
+  Object.fromEntries(
+    SLOTS.map((slot) => [slot, { title: t(`notify.${slot}.title`), body: t(`notify.${slot}.body`) }]),
+  );
+
+function renderReminders() {
+  remindersToggle.checked = reminderConfig.enabled;
+  $('#reminder-options').hidden = !reminderConfig.enabled;
+  reminderMode.value = reminderConfig.mode;
+  for (const slot of SLOTS) reminderTimes[slot].value = reminderConfig[slot];
+  const range = seriesRange(reminderConfig);
+  $('#series-info').hidden = !range;
+  if (range) {
+    const [start, end] = [range.start, range.end].map((d) => shortDateFormat.format(d));
+    const done = localDate() > localDate(range.end);
+    $('#series-text').textContent = t(done ? 'reminders.seriesDone' : 'reminders.seriesRunning', { start, end });
+  }
+}
+
+// Periodic Background Sync lets the service worker check for due reminders while the app is closed.
+// Only Chromium supports it, and only for installed apps. Returns whether it is active.
+async function updateBackgroundCheck() {
+  try {
+    const registration = await navigator.serviceWorker.getRegistration();
+    if (!registration?.periodicSync) return false;
+    if (!reminderConfig.enabled) {
+      await registration.periodicSync.unregister(SYNC_TAG);
+      return false;
+    }
+    const { state } = await navigator.permissions.query({ name: 'periodic-background-sync' });
+    if (state !== 'granted') return false;
+    await registration.periodicSync.register(SYNC_TAG, { minInterval: 60 * 60 * 1000 });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function updateReminders(changes) {
+  await remindersLoaded;
+  reminderConfig = { ...reminderConfig, ...changes, texts: reminderTexts() };
+  renderReminders();
+  try {
+    await saveConfig(reminderConfig);
+  } catch {
+    // Without the Cache API there is nothing to remind from.
+  }
+  const background = await updateBackgroundCheck();
+  const hint = background
+    ? t('reminders.backgroundDelay')
+    : [t('reminders.foregroundOnly'), !isIos && t('reminders.chromeHint')].filter(Boolean).join(' ');
+  $('#reminders-background').textContent = hint;
+  $('#reminders-background').hidden = !reminderConfig.enabled;
+  checkRemindersNow();
+}
+
+async function setLatestMeasurement(date) {
+  await remindersLoaded;
+  if (reminderConfig.latest === date) return;
+  reminderConfig.latest = date;
+  saveConfig(reminderConfig).catch(() => {});
+}
+
+async function checkRemindersNow() {
+  if (!canNotify || !reminderConfig.enabled || Notification.permission !== 'granted') return;
+  try {
+    // Notifications from the page itself are not allowed on Android, so go through the service
+    // worker; during development there is none.
+    const registration = (await navigator.serviceWorker.getRegistration()) ?? {
+      showNotification: (title, options) => new Notification(title, options),
+    };
+    await checkReminders(registration);
+  } catch {
+    // Try again on the next tick.
+  }
+}
+
+if (!canNotify) {
+  remindersToggle.disabled = true;
+  const unsupported = $('#reminders-unsupported');
+  unsupported.hidden = false;
+  if (isIos && !isStandalone()) unsupported.textContent = t('reminders.iosInstall');
+} else {
+  remindersLoaded.then(() => {
+    // Permission may have been revoked in the meantime. Otherwise refresh texts and registration.
+    if (reminderConfig.enabled) updateReminders({ enabled: Notification.permission === 'granted' });
+    else renderReminders();
+  });
+  setInterval(checkRemindersNow, 60 * 1000);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') checkRemindersNow();
+  });
+  navigator.serviceWorker.addEventListener('message', (e) => {
+    if (e.data?.type === 'add') startMeasurement();
+  });
+}
+
+remindersToggle.addEventListener('change', async () => {
+  if (remindersToggle.checked && (await Notification.requestPermission()) !== 'granted') {
+    remindersToggle.checked = false;
+    toast(t('reminders.denied'), true);
+    return;
+  }
+  updateReminders({ enabled: remindersToggle.checked });
+});
+reminderMode.addEventListener('change', () => {
+  const series = reminderMode.value === 'series';
+  updateReminders({ mode: reminderMode.value, seriesStart: series ? localDate() : null });
+});
+for (const slot of SLOTS) {
+  reminderTimes[slot].addEventListener('change', () => {
+    if (reminderTimes[slot].value) updateReminders({ [slot]: reminderTimes[slot].value });
+  });
+}
+$('#series-restart').addEventListener('click', () => updateReminders({ seriesStart: localDate() }));
+
 // --- Startup ------------------------------------------------------------
 
 const SPLASH_MIN_MS = 1000;
@@ -561,3 +713,6 @@ if (!isSupported()) {
     .catch((err) => toast(t('toast.loadFailed', { error: err.message }), true))
     .finally(hideSplash);
 }
+
+// Opened from a reminder notification while the app was closed.
+if (location.hash === '#add') startMeasurement();

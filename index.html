@@ -237,6 +237,50 @@
 
       <div class="space"></div>
 
+      <h5 data-i18n="settings.reminders">Reminders</h5>
+      <article>
+        <nav>
+          <i>notifications</i>
+          <h6 class="max small" data-i18n="reminders.title">Measurement reminders</h6>
+          <label class="switch">
+            <input id="reminders" type="checkbox" />
+            <span></span>
+          </label>
+        </nav>
+        <p data-i18n="reminders.desc">Get reminded to measure twice a day as recommended: in the morning before
+          medication and breakfast, and in the evening before dinner.</p>
+        <p id="reminders-unsupported" class="small-text" data-i18n="reminders.unsupported" hidden>This browser can't
+          show notifications.</p>
+        <div id="reminder-options" hidden>
+          <div class="field label suffix border">
+            <select id="reminder-mode">
+              <option value="daily" data-i18n="reminders.daily">Every day</option>
+              <option value="series" data-i18n="reminders.series">7-day series before a doctor's visit</option>
+            </select>
+            <label data-i18n="reminders.schedule">Schedule</label>
+            <i>arrow_drop_down</i>
+          </div>
+          <div class="grid">
+            <div class="s6 field label border">
+              <input id="reminder-morning" type="time" required placeholder=" " />
+              <label for="reminder-morning" data-i18n="reminders.morning">Morning</label>
+            </div>
+            <div class="s6 field label border">
+              <input id="reminder-evening" type="time" required placeholder=" " />
+              <label for="reminder-evening" data-i18n="reminders.evening">Evening</label>
+            </div>
+          </div>
+          <nav id="series-info" class="no-margin">
+            <div id="series-text" class="max small-text"></div>
+            <button type="button" id="series-restart" class="border small" data-i18n="reminders.restart">Start
+              new series</button>
+          </nav>
+          <p id="reminders-background" class="small-text" hidden></p>
+        </div>
+      </article>
+
+      <div class="space"></div>
+
       <h5 data-i18n="settings.data">Data</h5>
       <article>
         <nav>
