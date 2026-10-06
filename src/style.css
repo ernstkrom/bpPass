@@ -12,6 +12,19 @@ html {
   background-color: #6750a4;
 }
 
+/* With the translucent status bar, iOS 26 draws a blurred scroll edge behind it unless a fixed
+   element with a solid background-color touches the top edge; it then tints the bar with that
+   color instead. Gradients don't count, so this strip covers just the status bar area. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0 0 auto 0;
+  block-size: env(safe-area-inset-top);
+  z-index: 100;
+  background-color: #6750a4;
+  pointer-events: none;
+}
+
 body {
   /* No long-press callout (iOS), text selection or double-tap zoom on UI chrome. */
   -webkit-touch-callout: none;
@@ -212,7 +225,7 @@ main > .page {
   padding: calc(env(safe-area-inset-top) + 1rem) 1.25rem 1.25rem;
   margin-block-end: 1rem;
   color: #fff;
-  background: linear-gradient(135deg, #7f67be 0%, #6750a4 45%, #4f378b 100%);
+  background: #6750a4 linear-gradient(135deg, #7f67be 0%, #6750a4 45%, #4f378b 100%);
   border-radius: 0 0 1.75rem 1.75rem;
   box-shadow: 0 0 0 transparent;
   transition:
